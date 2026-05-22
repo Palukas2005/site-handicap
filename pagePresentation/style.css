@@ -1,0 +1,75 @@
+body{
+    background-color: #dff4eb;
+    margin: 0;
+}
+header{
+    background-color: white;
+    padding: 20px 0px 20px 20px;
+}
+nav{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+div.flexRow{
+    display: flex;
+    flex-direction: row;
+}
+h4{
+    color:black;
+    font-family: "Poppins", sans-serif;
+}
+button{
+    font-family: cursive;
+    cursor: pointer;
+}
+.colorGreen{
+    border-radius: 50px;
+    justify-content: center;
+    margin-right: 20px;
+    background-color: #2f8f72;
+    border: none;
+    color: white;
+    min-width: 60px;
+}
+.Button {
+    border-radius: 50px;
+    justify-content: center;
+    margin-right: 20px;
+    border: solid rgba(0, 128, 90, 0.312);
+    background-color: #dff4eb;
+}
+main{
+    margin-left:150px ;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    column-gap:200px ;
+}
+section.texte{
+    font-size: 20px;
+    font-family: cursive;
+    width: 500px;
+}
+.tailleButton{
+    margin-top: 20px;
+    font-size: 20px;
+    padding: 20px 20px;
+}
+section.centerImage{
+    border: solid white;
+    border-width: 1.5rem;
+    border-radius: +20px;
+    display: flex;
+    flex-direction: row;
+    background-color: white;
+}
+img{
+    border-radius: 10px; 
+    width: 15rem;
+    height: 10rem;
+}
+footer{
+    margin-left: 150px;
+}

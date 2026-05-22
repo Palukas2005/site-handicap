@@ -1,0 +1,18 @@
+body{
+    background-color: #dff4eb;
+}
+button{
+    cursor: pointer;
+    font-family: cursive;
+    font-size: large;
+}
+.colorGreen{
+    border-radius: 50px;
+    justify-content: center;
+    margin-right: 20px;
+    background-color: #2f8f72;
+    border: none;
+    color: white;
+    min-width: 100px;
+    padding: 20px 40px;
+}
