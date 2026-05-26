@@ -1,0 +1,33 @@
+body{
+    background-color: #dff4eb;
+    margin: 0;
+}
+header{
+    background-color: white;
+    padding: 20px 0px 20px 20px;
+}
+nav{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+button{
+    font-family: cursive;
+    cursor: pointer;
+}
+.colorGreen{
+    border-radius: 50px;
+    justify-content: center;
+    margin-right: 20px;
+    background-color: #2f8f72;
+    border: none;
+    color: white;
+    min-width: 60px;
+}
+.Button {
+    border-radius: 50px;
+    justify-content: center;
+    margin-right: 20px;
+    border: solid rgba(0, 128, 90, 0.312);
+    background-color: #dff4eb;
+}
