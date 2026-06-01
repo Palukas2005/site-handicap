@@ -1,30 +1,37 @@
 const registerForm = document.getElementById("registerForm");
+const apiBaseUrl = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 
-registerForm.addEventListener("submit", function(event){
+registerForm.addEventListener("submit", async function(event){
 
     event.preventDefault();
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const savedUser = JSON.parse(localStorage.getItem("user"));
+    try {
+        const response = await fetch(`${apiBaseUrl}/api/users/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        });
 
-    if(savedUser !== null && email === savedUser.email){
+        const data = await response.json();
 
-        alert("Ce compte existe déjà.");
-        return;
+        if (!response.ok) {
+            alert(data.message || "Inscription impossible.");
+            return;
+        }
 
+        alert("Compte créé avec succès !");
+        window.location.href = "../Connection/pageConnection.html";
+    } catch (error) {
+        console.error(error);
+        alert("Impossible de joindre le serveur. Vérifiez que le backend tourne sur le port 3000.");
     }
-
-    const user = {
-        email: email,
-        password: password
-    };
-
-    localStorage.setItem("user", JSON.stringify(user));
-
-    alert("Compte créé avec succès !");
-
-    window.location.href = "/Docteur.html";
 
 });

@@ -1,13 +1,24 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
-const pool = require("./db");
+const { pool, missingDbConfig } = require("./db");
+const usersRouter = require("./routes/users");
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/users", usersRouter);
+app.use(express.static(path.resolve(__dirname, "..")));
 
-app.get("/", async (req, res) => {
+app.get("/api/db-status", async (req, res) => {
+    if (!pool) {
+        return res.status(503).json({
+            message: "Configuration PostgreSQL incomplète.",
+            missing: missingDbConfig
+        });
+    }
 
     try {
 
@@ -30,6 +41,14 @@ app.get("/", async (req, res) => {
 
 });
 
-app.listen(3000, () => {
-    console.log("Serveur lancé sur le port 3000");
+app.get("/", (req, res) => {
+    res.redirect("/pageAccueil/index.html");
 });
+
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Serveur lancé sur le port ${port}`);
+    });
+}
+
+module.exports = app;
