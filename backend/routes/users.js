@@ -6,16 +6,49 @@ const router = express.Router();
 
 let usersTablePromise;
 
-function ensureUsersTable() {
+async function ensureUsersTable() {
     if (!usersTablePromise) {
-        usersTablePromise = pool.query(`
+        usersTablePromise = (async () => {
+            await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
+                password_hash TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        `).catch((error) => {
+        `);
+
+            await pool.query(`
+                ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS password TEXT
+            `);
+
+            await pool.query(`
+                ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS password_hash TEXT
+            `);
+
+            await pool.query(`
+                ALTER TABLE users
+                ALTER COLUMN password DROP NOT NULL
+            `);
+
+            const legacyUsers = await pool.query(`
+                SELECT id, password
+                FROM users
+                WHERE password_hash IS NULL
+                AND password IS NOT NULL
+            `);
+
+            for (const legacyUser of legacyUsers.rows) {
+                const passwordHash = await bcrypt.hash(legacyUser.password, 10);
+
+                await pool.query(
+                    "UPDATE users SET password_hash = $1, password = NULL WHERE id = $2",
+                    [passwordHash, legacyUser.id]
+                );
+            }
+        })().catch((error) => {
             usersTablePromise = undefined;
             throw error;
         });
@@ -99,7 +132,7 @@ router.post("/login", async (req, res) => {
         await ensureUsersTable();
 
         const result = await pool.query(
-            "SELECT id, email, password_hash FROM users WHERE email = $1",
+            "SELECT id, email, password, password_hash FROM users WHERE email = $1",
             [email]
         );
 
@@ -110,12 +143,23 @@ router.post("/login", async (req, res) => {
         }
 
         const user = result.rows[0];
-        const passwordMatches = await bcrypt.compare(password, user.password_hash);
+        const passwordMatches = user.password_hash
+            ? await bcrypt.compare(password, user.password_hash)
+            : password === user.password;
 
         if (!passwordMatches) {
             return res.status(401).json({
                 message: "Email ou mot de passe incorrect."
             });
+        }
+
+        if (!user.password_hash && user.password) {
+            const passwordHash = await bcrypt.hash(user.password, 10);
+
+            await pool.query(
+                "UPDATE users SET password_hash = $1, password = NULL WHERE id = $2",
+                [passwordHash, user.id]
+            );
         }
 
         return res.json({
