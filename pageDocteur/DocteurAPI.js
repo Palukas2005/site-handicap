@@ -1,15 +1,31 @@
-document.addEventListener("DOMContentLoaded", () => {
-    chargerMedecins();
-});
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if (!currentUser) {
+    window.location.href = "../pageConnection/Connection/pageConnection.html";
+}
 
 async function chargerMedecins(){
     const resultats = document.getElementById("resultats");
+    const toggleButton = document.getElementById("toggleMedecins");
+
+    if (resultats.innerHTML.trim() !== "") {
+        resultats.innerHTML = "";
+        if (toggleButton) {
+            toggleButton.textContent = "Afficher les profils";
+        }
+        return;
+    }
 
     resultats.innerHTML = `
         <p class="statusMessage">
             Chargement des profils en cours...
         </p>
     `;
+
+    if (toggleButton) {
+        toggleButton.textContent = "Chargement...";
+        toggleButton.disabled = true;
+    }
 
     try{
 
@@ -50,7 +66,11 @@ async function chargerMedecins(){
             `;
         }).join("");
 
-    } catch(erreur){
+        if (toggleButton) {
+            toggleButton.textContent = "Masquer les profils";
+        }
+
+    } catch(error){
 
         resultats.innerHTML = `
             <p class="statusMessage errorMessage">
@@ -58,6 +78,10 @@ async function chargerMedecins(){
             </p>
         `;
 
-        console.error(erreur);
+        console.error(error);
+    } finally {
+        if (toggleButton) {
+            toggleButton.disabled = false;
+        }
     }
 }

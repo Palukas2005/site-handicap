@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Liste des médecins</title>
         <link rel="stylesheet" href="Docteur.css">
-        <script src="../shared/auth.js" defer></script>
         <script src="DocteurAPI.js"></script>
+        
     </head>
-    <body data-require-auth="true">
+    <body>
         <header>
             <nav>
                 <div>
@@ -21,22 +21,12 @@
                 </div>
                 <div>
                     <button class="logoutButton" data-logout-button hidden>Se déconnecter</button>
-                    <label for="Langue"></label>
                 </div>
             </nav>
         </header>
-        <main class="directoryPage">
-            <section class="directoryIntro">
-                <p class="eyebrow">Annuaire médical</p>
-                <h1>Trouvez un praticien plus facilement</h1>
-                <p class="introText">
-                    Affichez une sélection de profils pour visualiser rapidement
-                    les coordonnées et la localisation de chaque médecin.
-                </p>
-            </section>
-            <section class="directoryResults">
-                <div id="resultats" class="medecinsGrid" aria-live="polite"></div>
-            </section>
+        <main>
+            <button onclick="chargerMedecins()">Afficher / Masquer</button>
+            <div id="resultats"></div>
         </main>
     </body>
 </html>
