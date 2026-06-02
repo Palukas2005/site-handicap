@@ -5,10 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Liste des médecins</title>
         <link rel="stylesheet" href="Docteur.css">
-        <script src="DocteurAPI.js"></script>
-        
+        <script src="../shared/auth.js" defer></script>
+        <script src="DocteurAPI.js" defer></script>
     </head>
-    <body>
+    <body data-require-auth="true">
         <header>
             <nav>
                 <div>
@@ -24,9 +24,20 @@
                 </div>
             </nav>
         </header>
-        <main>
-            <button onclick="chargerMedecins()">Afficher / Masquer</button>
-            <div id="resultats"></div>
+        <main class="directoryPage">
+            <section class="directoryIntro">
+                <p class="eyebrow">Annuaire medical</p>
+                <h1>Trouvez un profil de medecin disponible</h1>
+                <p class="introText">
+                    Retrouvez une selection de profils medicaux pour avancer plus
+                    facilement dans votre parcours et identifier rapidement un
+                    interlocuteur utile.
+                </p>
+            </section>
+
+            <section class="directoryResults">
+                <div id="resultats" class="medecinsGrid"></div>
+            </section>
         </main>
     </body>
 </html>

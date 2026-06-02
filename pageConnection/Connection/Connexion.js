@@ -1,6 +1,14 @@
 const loginForm = document.getElementById("loginForm");
 const apiBaseUrl = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 
+function getDocteurUrl() {
+    if (window.location.protocol === "file:") {
+        return "http://localhost:3000/pageDocteur/Docteur.html";
+    }
+
+    return "/pageDocteur/Docteur.html";
+}
+
 loginForm.addEventListener("submit", async function(event){
     event.preventDefault();
 
@@ -28,7 +36,7 @@ loginForm.addEventListener("submit", async function(event){
         }
 
         alert("Connexion réussie !");
-        window.location.href = "../../pageDocteur/Docteur.html";
+        window.location.href = getDocteurUrl();
     } catch (error) {
         console.error(error);
         alert("Impossible de joindre le serveur. Vérifiez que le backend tourne sur le port 3000.");

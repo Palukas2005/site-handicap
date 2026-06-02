@@ -1,6 +1,14 @@
 const registerForm = document.getElementById("registerForm");
 const apiBaseUrl = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 
+function getConnectionUrl() {
+    if (window.location.protocol === "file:") {
+        return "http://localhost:3000/pageConnection/Connection/pageConnection.html";
+    }
+
+    return "/pageConnection/Connection/pageConnection.html";
+}
+
 registerForm.addEventListener("submit", async function(event){
 
     event.preventDefault();
@@ -28,7 +36,7 @@ registerForm.addEventListener("submit", async function(event){
         }
 
         alert("Compte créé avec succès !");
-        window.location.href = "../Connection/pageConnection.html";
+        window.location.href = getConnectionUrl();
     } catch (error) {
         console.error(error);
         alert("Impossible de joindre le serveur. Vérifiez que le backend tourne sur le port 3000.");
