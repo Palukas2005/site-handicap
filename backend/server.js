@@ -1,15 +1,20 @@
 const express = require("express");
-const path = require("path");
+const path = require("node:path");
 const cors = require("cors");
 const { pool, missingDbConfig } = require("./db");
+const { requirePageAuth } = require("./auth");
 const usersRouter = require("./routes/users");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json());
 app.use("/api/users", usersRouter);
+app.use(["/pageDocteur", "/pageRdv"], requirePageAuth);
 app.use(express.static(path.resolve(__dirname, "..")));
 
 app.get("/api/db-status", async (req, res) => {

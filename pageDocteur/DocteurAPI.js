@@ -1,18 +1,15 @@
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-if (!currentUser) {
-    window.location.href = "../pageConnection/Connection/pageConnection.html";
-}
+document.addEventListener("DOMContentLoaded", () => {
+    chargerMedecins();
+});
 
 async function chargerMedecins(){
     const resultats = document.getElementById("resultats");
 
-    if (resultats.innerHTML.trim() !== "") {
-        resultats.innerHTML = "";
-        return;
-    }
-
-    resultats.innerHTML = "Chargement...";
+    resultats.innerHTML = `
+        <p class="statusMessage">
+            Chargement des profils en cours...
+        </p>
+    `;
 
     try{
 
@@ -24,25 +21,42 @@ async function chargerMedecins(){
 
         resultats.innerHTML = "";
 
-        donnees.results.forEach(personne => {
-
-            resultats.innerHTML += `
-
-                <div class="medecin">
-                    <img src="${personne.picture.large}" alt="Photo du médecin">
-                    <h2>
-                        Dr ${personne.name.first} ${personne.name.last}
-                    </h2>
-                    <p>
-                        Ville : ${personne.location.city}
-                    </p>
-                </div>
+        resultats.innerHTML = donnees.results.map((personne) => {
+            return `
+                <article class="medecin">
+                    <div class="medecinHeader">
+                        <img class="medecinPhoto" src="${personne.picture.large}" alt="Photo du médecin">
+                        <div class="medecinIdentity">
+                            <p class="medecinLabel">Profil disponible</p>
+                            <h2 class="medecinNom">
+                                Dr ${personne.name.first} ${personne.name.last}
+                            </h2>
+                            <p class="medecinLieu">
+                                ${personne.location.city}, ${personne.location.country}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="medecinDetails">
+                        <p>
+                            <span>Téléphone</span>
+                            <a href="tel:${personne.phone}">${personne.phone}</a>
+                        </p>
+                        <p>
+                            <span>Email</span>
+                            <a href="mailto:${personne.email}">${personne.email}</a>
+                        </p>
+                    </div>
+                </article>
             `;
-        });
+        }).join("");
 
     } catch(erreur){
 
-        resultats.innerHTML = "Erreur lors du chargement.";
+        resultats.innerHTML = `
+            <p class="statusMessage errorMessage">
+                Erreur lors du chargement des profils.
+            </p>
+        `;
 
         console.error(erreur);
     }

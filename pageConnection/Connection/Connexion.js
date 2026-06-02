@@ -10,6 +10,7 @@ loginForm.addEventListener("submit", async function(event){
     try {
         const response = await fetch(`${apiBaseUrl}/api/users/login`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -26,7 +27,6 @@ loginForm.addEventListener("submit", async function(event){
             return;
         }
 
-        localStorage.setItem("currentUser", JSON.stringify(data.user));
         alert("Connexion réussie !");
         window.location.href = "../../pageDocteur/Docteur.html";
     } catch (error) {

@@ -24,35 +24,48 @@
             </nav>
         </header>
 
-        <main>
+        <main class="authLayout">
+            <section class="authIntro">
+                <p class="authEyebrow">Espace personnel</p>
+                <h1>Retrouvez votre suivi HandiRepere</h1>
+                <p class="authLead">
+                    Connectez-vous pour retrouver vos repères, consulter
+                    l'annuaire médical et préparer vos prochains rendez-vous.
+                </p>
+                <div class="authHighlights">
+                    <p>Accédez rapidement à vos pages docteurs.</p>
+                    <p>Gardez un parcours clair et centralisé.</p>
+                    <p>Retrouvez une interface simple sur mobile comme sur ordinateur.</p>
+                </div>
+            </section>
 
-            <h1>Connectez-vous</h1>
+            <section class="authCard">
+                <p class="cardEyebrow">Connexion</p>
+                <h2>Bon retour parmi nous</h2>
 
-            <form id="loginForm">
+                <form id="loginForm" class="authForm">
 
-                <label for="email">Email :</label>
-                <input type="email" id="email" name="email" required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="vous@exemple.fr" required>
 
-                <label for="password">Mot de passe :</label>
-                <input type="password" id="password" name="password" required>
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
 
-                <button class="colorGreen" type="submit">
-                    Se connecter
-                </button>
+                    <button class="colorGreen submitButton" type="submit">
+                        Se connecter
+                    </button>
 
-            </form>
+                </form>
 
+                <div class="authSwitch">
+                    <p>Pas encore de compte ?</p>
+
+                    <a class="secondaryLink" href="../Inscription/pageInscription.html">
+                        Créer un compte
+                    </a>
+                </div>
+            </section>
         </main>
-
-        <footer>
-
-            <p>Pas encore de compte ?</p>
-
-            <a href="../Inscription/pageInscription.html">
-                <button>S'inscrire</button>
-            </a>
-
-        </footer>
         <script src="Connexion.js"></script>
     </body>
 </html>

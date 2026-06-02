@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("node:path");
 const { Pool } = require("pg");
 
 require("dotenv").config({

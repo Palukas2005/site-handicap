@@ -1,5 +1,13 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const {
+    clearSessionCookie,
+    createSession,
+    deleteSession,
+    getSession,
+    getSessionToken,
+    setSessionCookie
+} = require("../auth");
 const { pool, missingDbConfig } = require("../db");
 
 const router = express.Router();
@@ -61,9 +69,26 @@ function getNormalizedEmail(email) {
     return typeof email === "string" ? email.trim().toLowerCase() : "";
 }
 
+router.get("/me", (req, res) => {
+    const session = getSession(req);
+
+    if (!session) {
+        return res.status(401).json({
+            message: "Non authentifie."
+        });
+    }
+
+    return res.json({
+        user: {
+            id: session.id,
+            email: session.email
+        }
+    });
+});
+
 router.delete("/me", async (req, res) => {
-    const id = Number(req.body.id);
-    const email = getNormalizedEmail(req.body.email);
+    const session = getSession(req);
+    const sessionToken = getSessionToken(req);
 
     if (!pool) {
         return res.status(503).json({
@@ -72,9 +97,9 @@ router.delete("/me", async (req, res) => {
         });
     }
 
-    if (!Number.isInteger(id) || id <= 0 || !email) {
-        return res.status(400).json({
-            message: "Identifiants du compte invalides."
+    if (!session) {
+        return res.status(401).json({
+            message: "Non authentifie."
         });
     }
 
@@ -83,13 +108,18 @@ router.delete("/me", async (req, res) => {
 
         const deletedUser = await pool.query(
             "DELETE FROM users WHERE id = $1 AND email = $2 RETURNING id",
-            [id, email]
+            [session.id, getNormalizedEmail(session.email)]
         );
 
         if (deletedUser.rowCount === 0) {
             return res.status(404).json({
                 message: "Compte introuvable."
             });
+        }
+
+        if (sessionToken) {
+            deleteSession(sessionToken);
+            clearSessionCookie(res);
         }
 
         return res.json({
@@ -102,6 +132,17 @@ router.delete("/me", async (req, res) => {
             message: "Impossible de supprimer le compte pour le moment."
         });
     }
+});
+
+router.post("/logout", (req, res) => {
+    const sessionToken = getSessionToken(req);
+
+    deleteSession(sessionToken);
+    clearSessionCookie(res);
+
+    return res.json({
+        message: "Déconnexion réussie."
+    });
 });
 
 router.post("/register", async (req, res) => {
@@ -204,6 +245,10 @@ router.post("/login", async (req, res) => {
                 [passwordHash, user.id]
             );
         }
+
+        const sessionToken = createSession(user);
+
+        setSessionCookie(res, sessionToken);
 
         return res.json({
             message: "Connexion réussie.",

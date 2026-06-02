@@ -1,15 +1,18 @@
 body{
     background-color: #dff4eb;
     margin: 0;
+    font-family: cursive;
 }
 header{
     background-color: white;
     padding: 20px 0px 20px 20px;
+    box-shadow: 0 8px 24px rgba(36, 110, 88, 0.08);
 }
 nav{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 }
 button{
     font-family: cursive;
@@ -38,4 +41,137 @@ button{
     border: none;
     color: white;
     padding: 14px 20px;
+}
+.directoryPage{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+}
+.directoryIntro{
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(230, 248, 239, 0.95));
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 22px 40px rgba(36, 110, 88, 0.12);
+}
+.eyebrow{
+    margin: 0 0 12px;
+    color: #246e58;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.directoryIntro h1{
+    margin: 0 0 12px;
+    color: #1f5f4a;
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+.introText{
+    margin: 0;
+    max-width: 720px;
+    color: #36584d;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+.directoryResults{
+    margin-top: 28px;
+}
+.medecinsGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+.medecin{
+    background-color: white;
+    border-radius: 26px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(36, 110, 88, 0.12);
+    border: 1px solid rgba(36, 110, 88, 0.08);
+}
+.medecinHeader{
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.medecinPhoto{
+    width: 96px;
+    height: 96px;
+    border-radius: 24px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.medecinIdentity{
+    min-width: 0;
+}
+.medecinLabel{
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background-color: #e6f8ef;
+    color: #246e58;
+    font-size: 0.85rem;
+}
+.medecinNom{
+    margin: 0;
+    color: #173f32;
+    font-size: 1.35rem;
+}
+.medecinLieu{
+    margin: 8px 0 0;
+    color: #54796c;
+}
+.medecinDetails{
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(36, 110, 88, 0.12);
+    display: grid;
+    gap: 14px;
+}
+.medecinDetails p{
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.medecinDetails span{
+    color: #54796c;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.medecinDetails a{
+    color: #1f5f4a;
+    text-decoration: none;
+    word-break: break-word;
+}
+.medecinDetails a:hover{
+    text-decoration: underline;
+}
+.statusMessage{
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 24px;
+    border-radius: 22px;
+    background-color: white;
+    color: #246e58;
+    text-align: center;
+    box-shadow: 0 16px 30px rgba(36, 110, 88, 0.1);
+}
+.errorMessage{
+    color: #9a2f2f;
+}
+
+@media (max-width: 700px) {
+    .directoryPage{
+        padding: 32px 18px 48px;
+    }
+
+    .directoryIntro{
+        padding: 24px;
+    }
+
+    .medecinHeader{
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }

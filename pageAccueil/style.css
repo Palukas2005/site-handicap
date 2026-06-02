@@ -31,9 +31,9 @@ button{
     border-radius: 50px;
     justify-content: center;
     margin-right: 20px;
-    background-color: #2f8f72;
+    background-color: #246e58;
     border: none;
-    color: white;
+    color: rgb(255, 255, 255);
     min-width: 60px;
 }
 .Button {

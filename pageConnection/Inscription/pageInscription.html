@@ -18,24 +18,43 @@
                 </div>
             </nav>
         </header>
-        <main>
-            <h1>Inscrivez-vous</h1>
-            <form id="registerForm">
+        <main class="authLayout">
+            <section class="authIntro">
+                <p class="authEyebrow">Création de compte</p>
+                <h1>Préparez votre espace personnel</h1>
+                <p class="authLead">
+                    Ouvrez votre compte pour accéder plus facilement aux médecins,
+                    suivre vos démarches et avancer à votre rythme.
+                </p>
+                <div class="authHighlights">
+                    <p>Un accès centralisé à l'annuaire et aux futures fonctionnalités.</p>
+                    <p>Une expérience pensée pour rester simple et rassurante.</p>
+                    <p>Un point de départ clair pour votre parcours médical.</p>
+                </div>
+            </section>
 
-                <label for="email">Email: </label>
-                <input type="email" id="email" name="email" required>
+            <section class="authCard">
+                <p class="cardEyebrow">Inscription</p>
+                <h2>Créez votre compte</h2>
 
-                <label for="password">Mot de passe: </label>
-                <input type="password" id="password" name="password" required>
+                <form id="registerForm" class="authForm">
 
-                <button class="colorGreen" type="submit">S'inscrire</button>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="vous@exemple.fr" required>
 
-            </form>
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" placeholder="Choisissez un mot de passe" required>
+
+                    <button class="colorGreen submitButton" type="submit">S'inscrire</button>
+
+                </form>
+
+                <div class="authSwitch">
+                    <p>Déjà un compte ?</p>
+                    <a class="secondaryLink" href="../Connection/pageConnection.html">Se connecter</a>
+                </div>
+            </section>
         </main>
-        <footer>
-            <p>Déjà un compte ?</p>
-            <a href="../Connection/pageConnection.html"><button>Se connecter</button></a>
-        </footer>
         <script src="inscription.js"></script>
     </body>
 </html>
