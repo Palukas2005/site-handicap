@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,53 +19,40 @@
                     </a>
                 </div>
                 <div>
-                    <button class="logoutButton" data-logout-button hidden>Se déconnecter</button>
+                    
                 </div>
             </nav>
         </header>
 
-        <main class="authLayout">
-            <section class="authIntro">
-                <p class="authEyebrow">Espace personnel</p>
-                <h1>Retrouvez votre suivi HandiRepere</h1>
-                <p class="authLead">
-                    Connectez-vous pour retrouver vos repères, consulter
-                    l'annuaire médical et préparer vos prochains rendez-vous.
-                </p>
-                <div class="authHighlights">
-                    <p>Accédez rapidement à vos pages docteurs.</p>
-                    <p>Gardez un parcours clair et centralisé.</p>
-                    <p>Retrouvez une interface simple sur mobile comme sur ordinateur.</p>
-                </div>
-            </section>
+        <main>
 
-            <section class="authCard">
-                <p class="cardEyebrow">Connexion</p>
-                <h2>Bon retour parmi nous</h2>
+            <h1>Connectez-vous</h1>
 
-                <form id="loginForm" class="authForm">
+            <form id="loginForm">
 
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="vous@exemple.fr" required>
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
 
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" required>
 
-                    <button class="colorGreen submitButton" type="submit">
-                        Se connecter
-                    </button>
+                <button class="colorGreen" type="submit">
+                    Se connecter
+                </button>
 
-                </form>
+            </form>
 
-                <div class="authSwitch">
-                    <p>Pas encore de compte ?</p>
-
-                    <a class="secondaryLink" href="../Inscription/pageInscription.html">
-                        Créer un compte
-                    </a>
-                </div>
-            </section>
         </main>
+
+        <footer>
+
+            <p>Pas encore de compte ?</p>
+
+            <a href="../Inscription/pageInscription.html">
+                <button>S'inscrire</button>
+            </a>
+
+        </footer>
         <script src="Connexion.js"></script>
     </body>
 </html>

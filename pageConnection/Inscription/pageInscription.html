@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,47 +14,28 @@
                     <a href="../../pageAccueil/index.html"><button class="colorGreen">&lt; Retour</button></a>
                 </div>
                 <div>
-                    <button class="logoutButton" data-logout-button hidden>Se déconnecter</button>
+                    
                 </div>
             </nav>
         </header>
-        <main class="authLayout">
-            <section class="authIntro">
-                <p class="authEyebrow">Création de compte</p>
-                <h1>Préparez votre espace personnel</h1>
-                <p class="authLead">
-                    Ouvrez votre compte pour accéder plus facilement aux médecins,
-                    suivre vos démarches et avancer à votre rythme.
-                </p>
-                <div class="authHighlights">
-                    <p>Un accès centralisé à l'annuaire et aux futures fonctionnalités.</p>
-                    <p>Une expérience pensée pour rester simple et rassurante.</p>
-                    <p>Un point de départ clair pour votre parcours médical.</p>
-                </div>
-            </section>
+        <main>
+            <h1>Inscrivez-vous</h1>
+            <form id="registerForm">
 
-            <section class="authCard">
-                <p class="cardEyebrow">Inscription</p>
-                <h2>Créez votre compte</h2>
+                <label for="email">Email: </label>
+                <input type="email" id="email" name="email" required>
 
-                <form id="registerForm" class="authForm">
+                <label for="password">Mot de passe: </label>
+                <input type="password" id="password" name="password" required>
 
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="vous@exemple.fr" required>
+                <button class="colorGreen" type="submit">S'inscrire</button>
 
-                    <label for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password" placeholder="Choisissez un mot de passe" required>
-
-                    <button class="colorGreen submitButton" type="submit">S'inscrire</button>
-
-                </form>
-
-                <div class="authSwitch">
-                    <p>Déjà un compte ?</p>
-                    <a class="secondaryLink" href="../Connection/pageConnection.html">Se connecter</a>
-                </div>
-            </section>
+            </form>
         </main>
+        <footer>
+            <p>Déjà un compte ?</p>
+            <a href="../Connection/pageConnection.html"><button>Se connecter</button></a>
+        </footer>
         <script src="inscription.js"></script>
     </body>
 </html>
