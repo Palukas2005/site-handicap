@@ -10,32 +10,71 @@
     <body>
         <header>
             <nav>
-                <div>
-                    <a href="../../pageAccueil/index.html"><button class="colorGreen">&lt; Retour</button></a>
+                <div class="navGroup">
+                    <a class="brandMark" href="../../pageAccueil/index.html">HR</a>
+                    <a class="backLink colorGreen" href="../../pageAccueil/index.html">
+                        Retour
+                    </a>
                 </div>
-                <div>
-                    
+                <div class="navActions">
+                    <button class="logoutButton" type="button" data-logout-button hidden>
+                        Se deconnecter
+                    </button>
                 </div>
             </nav>
         </header>
-        <main>
-            <h1>Inscrivez-vous</h1>
-            <form id="registerForm">
 
-                <label for="email">Email: </label>
-                <input type="email" id="email" name="email" required>
+        <main class="authLayout">
+            <section class="authIntro">
+                <p class="authEyebrow">Premiere etape</p>
+                <h1>Creez votre compte HandiRepere.</h1>
+                <p class="authLead">
+                    Inscrivez-vous pour acceder a un espace plus serein,
+                    retrouver les ressources utiles et preparer plus facilement
+                    vos prochaines demarches.
+                </p>
 
-                <label for="password">Mot de passe: </label>
-                <input type="password" id="password" name="password" required>
+                <div class="authHighlights">
+                    <p>Un compte unique vous permet d'acceder aux pages reservees du site.</p>
+                    <p>Votre connexion repose maintenant sur une vraie session serveur plus fiable.</p>
+                    <p>La mise en page reste identique a la connexion pour garder un parcours simple.</p>
+                </div>
+            </section>
 
-                <button class="colorGreen" type="submit">S'inscrire</button>
+            <section class="authCard">
+                <div class="authCardHeader">
+                    <p class="cardEyebrow">Nouvel espace</p>
+                    <h2>S'inscrire</h2>
+                    <p class="authCardText">
+                        Renseignez votre email et choisissez un mot de passe pour creer votre compte.
+                    </p>
+                </div>
 
-            </form>
+                <form id="registerForm" class="authForm">
+                    <div class="authFormRow">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="authFormRow">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <button class="colorGreen submitButton" type="submit">
+                        S'inscrire
+                    </button>
+                </form>
+
+                <div class="authSwitch">
+                    <p>Deja un compte ?</p>
+                    <a class="secondaryLink" href="../Connection/pageConnection.html">
+                        Se connecter
+                    </a>
+                </div>
+            </section>
         </main>
-        <footer>
-            <p>Déjà un compte ?</p>
-            <a href="../Connection/pageConnection.html"><button>Se connecter</button></a>
-        </footer>
+
         <script src="inscription.js"></script>
     </body>
 </html>

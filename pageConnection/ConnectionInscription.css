@@ -16,12 +16,42 @@ nav{
     justify-content: space-between;
     align-items: center;
 }
+a{
+    color: inherit;
+}
 button,
 input{
     font: inherit;
 }
 button{
     cursor: pointer;
+}
+.navGroup,
+.navActions{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.brandMark{
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #246e58;
+    background-color: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 14px 28px rgba(36, 110, 88, 0.12);
+}
+.backLink{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 .colorGreen{
     border-radius: 999px;
@@ -103,9 +133,21 @@ button{
     font-size: 2rem;
     color: #1f5f4a;
 }
+.authCardHeader{
+    margin-bottom: 24px;
+}
+.authCardText{
+    margin: -8px 0 0;
+    line-height: 1.6;
+    color: #54796c;
+}
 .authForm{
     display: grid;
     gap: 16px;
+}
+.authFormRow{
+    display: grid;
+    gap: 8px;
 }
 .authForm label{
     font-weight: 700;
@@ -170,11 +212,17 @@ button{
     nav{
         gap: 12px;
         align-items: flex-start;
+        flex-direction: column;
     }
 
     .colorGreen,
     .logoutButton{
         min-width: auto;
         padding: 14px 18px;
+    }
+
+    .brandMark{
+        width: 52px;
+        height: 52px;
     }
 }

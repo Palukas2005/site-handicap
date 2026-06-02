@@ -10,49 +10,73 @@
     </head>
 
     <body>
-
         <header>
             <nav>
-                <div>
-                    <a href="../../pageAccueil/index.html">
-                        <button class="colorGreen">&lt; Retour</button>
+                <div class="navGroup">
+                    <a class="brandMark" href="../../pageAccueil/index.html">HR</a>
+                    <a class="backLink colorGreen" href="../../pageAccueil/index.html">
+                        Retour
                     </a>
                 </div>
-                <div>
-                    
+                <div class="navActions">
+                    <button class="logoutButton" type="button" data-logout-button hidden>
+                        Se deconnecter
+                    </button>
                 </div>
             </nav>
         </header>
 
-        <main>
+        <main class="authLayout">
+            <section class="authIntro">
+                <p class="authEyebrow">Connexion securisee</p>
+                <h1>Retrouvez votre espace HandiRepere.</h1>
+                <p class="authLead">
+                    Connectez-vous pour acceder a vos pages protegees, retrouver
+                    les professionnels disponibles et poursuivre vos demarches
+                    sans perdre vos reperes.
+                </p>
 
-            <h1>Connectez-vous</h1>
+                <div class="authHighlights">
+                    <p>Accedez rapidement a vos outils essentiels depuis un espace simple et clair.</p>
+                    <p>Consultez la page medecin et la page rendez-vous uniquement avec une session active.</p>
+                    <p>Gardez une navigation plus rassurante avec une interface identique sur ordinateur et mobile.</p>
+                </div>
+            </section>
 
-            <form id="loginForm">
+            <section class="authCard">
+                <div class="authCardHeader">
+                    <p class="cardEyebrow">Bon retour</p>
+                    <h2>Se connecter</h2>
+                    <p class="authCardText">
+                        Entrez votre email et votre mot de passe pour ouvrir votre session.
+                    </p>
+                </div>
 
-                <label for="email">Email :</label>
-                <input type="email" id="email" name="email" required>
+                <form id="loginForm" class="authForm">
+                    <div class="authFormRow">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
 
-                <label for="password">Mot de passe :</label>
-                <input type="password" id="password" name="password" required>
+                    <div class="authFormRow">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
 
-                <button class="colorGreen" type="submit">
-                    Se connecter
-                </button>
+                    <button class="colorGreen submitButton" type="submit">
+                        Se connecter
+                    </button>
+                </form>
 
-            </form>
-
+                <div class="authSwitch">
+                    <p>Pas encore de compte ?</p>
+                    <a class="secondaryLink" href="../Inscription/pageInscription.html">
+                        Creer un compte
+                    </a>
+                </div>
+            </section>
         </main>
 
-        <footer>
-
-            <p>Pas encore de compte ?</p>
-
-            <a href="../Inscription/pageInscription.html">
-                <button>S'inscrire</button>
-            </a>
-
-        </footer>
         <script src="Connexion.js"></script>
     </body>
 </html>
