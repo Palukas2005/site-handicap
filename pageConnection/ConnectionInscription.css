@@ -1,6 +1,11 @@
 body{
     background-color: #dff4eb;
 }
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 button{
     cursor: pointer;
     font-family: cursive;
@@ -11,6 +16,14 @@ button{
     justify-content: center;
     margin-right: 20px;
     background-color: #2f8f72;
+    border: none;
+    color: white;
+    min-width: 100px;
+    padding: 20px 40px;
+}
+.logoutButton{
+    border-radius: 50px;
+    background-color: #b94141;
     border: none;
     color: white;
     min-width: 100px;

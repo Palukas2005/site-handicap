@@ -61,6 +61,49 @@ function getNormalizedEmail(email) {
     return typeof email === "string" ? email.trim().toLowerCase() : "";
 }
 
+router.delete("/me", async (req, res) => {
+    const id = Number(req.body.id);
+    const email = getNormalizedEmail(req.body.email);
+
+    if (!pool) {
+        return res.status(503).json({
+            message: "Configuration PostgreSQL incomplète. Renseignez backend/.env avant d'utiliser l'authentification.",
+            missing: missingDbConfig
+        });
+    }
+
+    if (!Number.isInteger(id) || id <= 0 || !email) {
+        return res.status(400).json({
+            message: "Identifiants du compte invalides."
+        });
+    }
+
+    try {
+        await ensureUsersTable();
+
+        const deletedUser = await pool.query(
+            "DELETE FROM users WHERE id = $1 AND email = $2 RETURNING id",
+            [id, email]
+        );
+
+        if (deletedUser.rowCount === 0) {
+            return res.status(404).json({
+                message: "Compte introuvable."
+            });
+        }
+
+        return res.json({
+            message: "Compte supprimé avec succès."
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Impossible de supprimer le compte pour le moment."
+        });
+    }
+});
+
 router.post("/register", async (req, res) => {
     const email = getNormalizedEmail(req.body.email);
     const password = typeof req.body.password === "string" ? req.body.password : "";

@@ -5,11 +5,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Page d'inscription</title>
         <link rel="stylesheet" href="../ConnectionInscription.css">
+        <script src="../../shared/auth.js" defer></script>
     </head>
     <body>
         <header>
             <nav>
-                <a href="../../pageAccueil/index.html"><button class="colorGreen">&lt; Retour</button></a>
+                <div>
+                    <a href="../../pageAccueil/index.html"><button class="colorGreen">&lt; Retour</button></a>
+                </div>
+                <div>
+                    <button class="logoutButton" data-logout-button hidden>Se déconnecter</button>
+                </div>
             </nav>
         </header>
         <main>

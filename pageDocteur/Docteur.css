@@ -31,3 +31,11 @@ button{
     border: solid rgba(0, 128, 90, 0.312);
     background-color: #dff4eb;
 }
+.logoutButton{
+    border-radius: 50px;
+    margin-right: 20px;
+    background-color: #b94141;
+    border: none;
+    color: white;
+    padding: 14px 20px;
+}
