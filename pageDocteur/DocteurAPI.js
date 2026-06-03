@@ -12,6 +12,7 @@ function getProfileBaseUrl() {
 
 function buildProfileUrl(personne) {
     const params = new URLSearchParams({
+        doctorKey: personne.email.toLowerCase(),
         fullName: `Dr ${personne.name.first} ${personne.name.last}`,
         photo: personne.picture.large,
         cabinet: `Cabinet du Dr ${personne.name.last}`,

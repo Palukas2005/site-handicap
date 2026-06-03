@@ -3,12 +3,26 @@ function getSearchValue(searchParams, key, fallback = "Information a venir") {
     return value && value.trim() ? value.trim() : fallback;
 }
 
-function getRendezVousUrl() {
+function getAppointmentUrl(searchParams) {
+    const appointmentParams = new URLSearchParams({
+        doctorKey: getSearchValue(searchParams, "doctorKey", ""),
+        fullName: getSearchValue(searchParams, "fullName"),
+        cabinet: getSearchValue(searchParams, "cabinet"),
+        professionalEmail: getSearchValue(searchParams, "professionalEmail"),
+        phone: getSearchValue(searchParams, "phone"),
+        address: getSearchValue(searchParams, "address"),
+        city: getSearchValue(searchParams, "city"),
+        postalCode: getSearchValue(searchParams, "postalCode"),
+        region: getSearchValue(searchParams, "region"),
+        country: getSearchValue(searchParams, "country"),
+        photo: searchParams.get("photo") || "../OIP.jpeg"
+    });
+
     if (window.location.protocol === "file:") {
-        return "http://localhost:3000/pageRdv/Rdv.html";
+        return `http://localhost:3000/pageProfil/pagePrendreRdv/PrendreRdv.html?${appointmentParams.toString()}`;
     }
 
-    return "/pageRdv/Rdv.html";
+    return `/pageProfil/pagePrendreRdv/PrendreRdv.html?${appointmentParams.toString()}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -55,6 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
     doctorPhoneLink.textContent = phone;
     doctorPhoneLink.href = `tel:${phone}`;
 
-    document.getElementById("appointmentLink").href = getRendezVousUrl();
+    document.getElementById("appointmentLink").href = getAppointmentUrl(searchParams);
     profileContent.hidden = false;
 });

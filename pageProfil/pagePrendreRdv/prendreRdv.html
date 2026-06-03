@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Prendre rendez-vous</title>
+        <link rel="stylesheet" href="PrendreRdv.css">
+        <script src="../../shared/auth.js" defer></script>
+        <script src="PrendreRdv.js" defer></script>
+    </head>
+    <body data-require-auth="true">
+        <header>
+            <nav>
+                <div>
+                    <button class="colorGreen"><h2>HR</h2></button>
+                    <a href="../../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
+                    <a href="../../pageDocteur/Docteur.html"><button class="Button"><h3>Docteur</h3></button></a>
+                    <a href="../../pageRdv/Rdv.html"><button class="Button"><h3>Rendez-vous</h3></button></a>
+                    <a href="#"><button class="Button"><h3>Contact</h3></button></a>
+                </div>
+                <div>
+                    <button class="logoutButton" data-logout-button hidden>Se deconnecter</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="appointmentPage">
+            <section id="appointmentEmptyState" class="emptyState" hidden>
+                <p class="eyebrow">Selection manquante</p>
+                <h1>Aucun medecin n'a ete selectionne.</h1>
+                <p>
+                    Retournez sur la fiche medecin pour ouvrir le planning du
+                    bon professionnel.
+                </p>
+                <a class="ghostLink" href="../Profil.html">Revenir au profil</a>
+            </section>
+
+            <section id="appointmentContent" class="appointmentContent" hidden>
+                <section class="appointmentHero">
+                    <div class="appointmentHeroText">
+                        <p class="eyebrow">Prise de rendez-vous</p>
+                        <h1 id="doctorName">Planning du medecin</h1>
+                        <p id="doctorSummary" class="heroLead"></p>
+                        <div class="heroMeta">
+                            <span id="doctorLocation" class="heroPill"></span>
+                            <span id="doctorContact" class="heroPill"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bookingLayout">
+                    <section class="planningCard">
+                        <div class="sectionHeader">
+                            <h2>Planning disponible</h2>
+                            <p>
+                                Il s'agit d'un planning factice commun a tous
+                                les medecins. Les creneaux grises sont deja
+                                reserves ou non disponibles.
+                            </p>
+                        </div>
+
+                        <div class="planningLegend">
+                            <span><i class="legendSwatch available"></i> Disponible</span>
+                            <span><i class="legendSwatch selected"></i> Selectionne</span>
+                            <span><i class="legendSwatch unavailable"></i> Indisponible</span>
+                        </div>
+
+                        <div id="planningStatus" class="planningStatus">
+                            Chargement du planning...
+                        </div>
+
+                        <div class="planningTableWrap">
+                            <div id="planningGrid" class="planningGrid"></div>
+                        </div>
+                    </section>
+
+                    <aside class="summaryCard">
+                        <div class="sectionHeader">
+                            <h2>Votre selection</h2>
+                            <p>
+                                Choisissez d'abord un creneau disponible, puis
+                                confirmez votre rendez-vous.
+                            </p>
+                        </div>
+
+                        <div class="summaryBlock">
+                            <p class="summaryLabel">Medecin</p>
+                            <p id="summaryDoctor" class="summaryValue">Aucune selection</p>
+                        </div>
+
+                        <div class="summaryBlock">
+                            <p class="summaryLabel">Date</p>
+                            <p id="summaryDate" class="summaryValue">Aucune date selectionnee</p>
+                        </div>
+
+                        <div class="summaryBlock">
+                            <p class="summaryLabel">Horaire</p>
+                            <p id="summaryTime" class="summaryValue">Aucun horaire selectionne</p>
+                        </div>
+
+                        <button id="saveAppointmentButton" class="appointmentButton" type="button" disabled>
+                            Enregistrer ce rendez-vous
+                        </button>
+
+                        <p id="saveStatus" class="saveStatus"></p>
+                    </aside>
+                </section>
+            </section>
+        </main>
+    </body>
+</html>

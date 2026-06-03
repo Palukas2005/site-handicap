@@ -1,0 +1,305 @@
+const DAYS_TO_SHOW = 7;
+const SCHEDULE_TEMPLATE = {
+    0: [],
+    1: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+    2: ["10:00", "11:00", "14:00", "15:00", "16:00"],
+    3: ["09:00", "10:00", "11:00", "14:00"],
+    4: ["10:00", "11:00", "14:00", "15:00", "16:00", "17:00"],
+    5: ["09:00", "10:00", "14:00", "15:00"],
+    6: []
+};
+const ALL_TIME_SLOTS = Array.from(
+    new Set(Object.values(SCHEDULE_TEMPLATE).flat())
+).sort();
+
+let doctorContext = null;
+let unavailableSlots = new Set();
+let selectedSlotKey = "";
+
+function getApiBaseUrl() {
+    return window.location.protocol === "file:" ? "http://localhost:3000" : "";
+}
+
+function getSearchValue(searchParams, key, fallback = "") {
+    const value = searchParams.get(key);
+    return value && value.trim() ? value.trim() : fallback;
+}
+
+function getDoctorKey(searchParams) {
+    const explicitDoctorKey = getSearchValue(searchParams, "doctorKey");
+    const professionalEmail = getSearchValue(searchParams, "professionalEmail");
+
+    if (explicitDoctorKey) {
+        return explicitDoctorKey.toLowerCase();
+    }
+
+    if (professionalEmail) {
+        return professionalEmail.toLowerCase();
+    }
+
+    return `${getSearchValue(searchParams, "fullName")}|${getSearchValue(searchParams, "region")}`.toLowerCase();
+}
+
+function formatDayLabel(date) {
+    return new Intl.DateTimeFormat("fr-FR", {
+        weekday: "long"
+    }).format(date);
+}
+
+function formatDayDate(date) {
+    return new Intl.DateTimeFormat("fr-FR", {
+        day: "numeric",
+        month: "long"
+    }).format(date);
+}
+
+function formatSelectedDate(dateString) {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Intl.DateTimeFormat("fr-FR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    }).format(new Date(year, month - 1, day));
+}
+
+function toDateKey(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function isPastSlot(date, time) {
+    const [hours, minutes] = time.split(":").map(Number);
+    const slotDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        hours,
+        minutes,
+        0,
+        0
+    );
+
+    return slotDate.getTime() <= Date.now();
+}
+
+function getSlotsForDate(date) {
+    return SCHEDULE_TEMPLATE[date.getDay()] || [];
+}
+
+function getPlanningDays() {
+    return Array.from({ length: DAYS_TO_SHOW }, (_, index) => {
+        const date = new Date();
+        date.setHours(0, 0, 0, 0);
+        date.setDate(date.getDate() + index);
+        return date;
+    });
+}
+
+function updateSelectionSummary() {
+    document.getElementById("summaryDoctor").textContent = doctorContext.doctorName;
+
+    if (!selectedSlotKey) {
+        document.getElementById("summaryDate").textContent = "Aucune date selectionnee";
+        document.getElementById("summaryTime").textContent = "Aucun horaire selectionne";
+        document.getElementById("saveAppointmentButton").disabled = true;
+        return;
+    }
+
+    const [selectedDate, selectedTime] = selectedSlotKey.split("|");
+    document.getElementById("summaryDate").textContent = formatSelectedDate(selectedDate);
+    document.getElementById("summaryTime").textContent = selectedTime;
+    document.getElementById("saveAppointmentButton").disabled = false;
+}
+
+function setStatus(message, type = "") {
+    const status = document.getElementById("saveStatus");
+    status.textContent = message;
+    status.className = type ? `saveStatus ${type}` : "saveStatus";
+}
+
+function renderPlanning() {
+    const planningGrid = document.getElementById("planningGrid");
+    const planningDays = getPlanningDays();
+
+    planningGrid.innerHTML = "";
+    planningGrid.style.gridTemplateColumns = `110px repeat(${planningDays.length}, minmax(140px, 1fr))`;
+
+    const cornerCell = document.createElement("div");
+    cornerCell.className = "matrixCornerCell";
+    cornerCell.textContent = "Heure";
+    planningGrid.appendChild(cornerCell);
+
+    planningDays.forEach((date) => {
+        const headerCell = document.createElement("div");
+        headerCell.className = "matrixHeaderCell";
+
+        const title = document.createElement("h3");
+        title.textContent = formatDayLabel(date);
+
+        const subtitle = document.createElement("p");
+        subtitle.textContent = formatDayDate(date);
+
+        headerCell.append(title, subtitle);
+        planningGrid.appendChild(headerCell);
+    });
+
+    ALL_TIME_SLOTS.forEach((time) => {
+        const timeCell = document.createElement("div");
+        timeCell.className = "matrixTimeCell";
+        timeCell.textContent = time;
+        planningGrid.appendChild(timeCell);
+
+        planningDays.forEach((date) => {
+            const daySlots = getSlotsForDate(date);
+            const dateKey = toDateKey(date);
+            const slotKey = `${dateKey}|${time}`;
+            const isTemplateAvailable = daySlots.includes(time);
+            const isUnavailable = !isTemplateAvailable || unavailableSlots.has(slotKey) || isPastSlot(date, time);
+            const isSelected = selectedSlotKey === slotKey;
+            const slotCell = document.createElement("div");
+            slotCell.className = "matrixSlotCell";
+            const slotButton = document.createElement("button");
+
+            slotButton.type = "button";
+            slotButton.className = `slotButton ${isSelected ? "selected" : (isUnavailable ? "unavailable" : "available")}`;
+            slotButton.disabled = isUnavailable;
+            slotButton.textContent = isTemplateAvailable ? time : "—";
+
+            if (!isUnavailable) {
+                slotButton.addEventListener("click", () => {
+                    selectedSlotKey = slotKey;
+                    setStatus("");
+                    updateSelectionSummary();
+                    renderPlanning();
+                });
+            }
+
+            slotCell.appendChild(slotButton);
+            planningGrid.appendChild(slotCell);
+        });
+    });
+}
+
+async function loadAvailability() {
+    const planningStatus = document.getElementById("planningStatus");
+    planningStatus.textContent = "Chargement du planning factice...";
+    unavailableSlots = new Set();
+    renderPlanning();
+
+    try {
+        const response = await fetch(
+            `${getApiBaseUrl()}/api/appointments/availability?doctorKey=${encodeURIComponent(doctorContext.doctorKey)}`,
+            {
+                method: "GET",
+                credentials: "include"
+            }
+        );
+
+        const responseText = await response.text();
+        const data = responseText ? JSON.parse(responseText) : {};
+
+        if (!response.ok) {
+            throw new Error(data.message || "Impossible de charger le planning.");
+        }
+
+        unavailableSlots = new Set(data.unavailableSlots.map((slot) => {
+            return `${slot.appointmentDate}|${slot.appointmentTime}`;
+        }));
+
+        planningStatus.textContent = "Selectionnez un creneau disponible dans ce planning.";
+        renderPlanning();
+    } catch (error) {
+        console.error(error);
+        planningStatus.textContent = "Le planning factice est affiche, mais les reservations enregistrees ne sont pas encore chargees. Redemarrez le backend si besoin.";
+        renderPlanning();
+    }
+}
+
+async function saveAppointment() {
+    if (!selectedSlotKey) {
+        return;
+    }
+
+    const [appointmentDate, appointmentTime] = selectedSlotKey.split("|");
+    const saveButton = document.getElementById("saveAppointmentButton");
+
+    saveButton.disabled = true;
+    setStatus("Enregistrement du rendez-vous en cours...");
+
+    try {
+        const response = await fetch(`${getApiBaseUrl()}/api/appointments`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                doctorKey: doctorContext.doctorKey,
+                doctorName: doctorContext.doctorName,
+                doctorEmail: doctorContext.professionalEmail,
+                doctorCabinet: doctorContext.cabinet,
+                doctorCity: doctorContext.city,
+                doctorRegion: doctorContext.region,
+                appointmentDate,
+                appointmentTime
+            })
+        });
+
+        const responseText = await response.text();
+        const data = responseText ? JSON.parse(responseText) : {};
+
+        if (!response.ok) {
+            throw new Error(data.message || "Impossible d'enregistrer le rendez-vous.");
+        }
+
+        setStatus(
+            `Rendez-vous enregistre pour le ${formatSelectedDate(appointmentDate)} a ${appointmentTime}.`,
+            "success"
+        );
+
+        selectedSlotKey = "";
+        updateSelectionSummary();
+        await loadAvailability();
+    } catch (error) {
+        console.error(error);
+        setStatus(error.message || "Impossible d'enregistrer le rendez-vous.", "error");
+        updateSelectionSummary();
+    }
+}
+
+function hydrateDoctorSummary() {
+    document.getElementById("doctorName").textContent = doctorContext.doctorName;
+    document.getElementById("doctorSummary").textContent = `${doctorContext.cabinet} - ${doctorContext.address}`;
+    document.getElementById("doctorLocation").textContent = `${doctorContext.city} ${doctorContext.postalCode} - ${doctorContext.region}`;
+    document.getElementById("doctorContact").textContent = doctorContext.professionalEmail;
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const appointmentContent = document.getElementById("appointmentContent");
+    const appointmentEmptyState = document.getElementById("appointmentEmptyState");
+
+    doctorContext = {
+        doctorKey: getDoctorKey(searchParams),
+        doctorName: getSearchValue(searchParams, "fullName"),
+        cabinet: getSearchValue(searchParams, "cabinet"),
+        professionalEmail: getSearchValue(searchParams, "professionalEmail"),
+        phone: getSearchValue(searchParams, "phone"),
+        address: getSearchValue(searchParams, "address"),
+        city: getSearchValue(searchParams, "city"),
+        postalCode: getSearchValue(searchParams, "postalCode"),
+        region: getSearchValue(searchParams, "region"),
+        country: getSearchValue(searchParams, "country")
+    };
+
+    if (!doctorContext.doctorName || !doctorContext.doctorKey) {
+        appointmentEmptyState.hidden = false;
+        return;
+    }
+
+    document.title = `${doctorContext.doctorName} - Rendez-vous`;
+    hydrateDoctorSummary();
+    updateSelectionSummary();
+    document.getElementById("saveAppointmentButton").addEventListener("click", saveAppointment);
+    appointmentContent.hidden = false;
+    await loadAvailability();
+});

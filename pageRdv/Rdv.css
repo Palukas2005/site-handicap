@@ -1,15 +1,19 @@
 body{
     background-color: #dff4eb;
     margin: 0;
+    color: #173f32;
+    font-family: cursive;
 }
 header{
     background-color: white;
     padding: 20px 0px 20px 20px;
+    box-shadow: 0 8px 24px rgba(36, 110, 88, 0.08);
 }
 nav{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 }
 div.flexRow{
     display: flex;
@@ -47,4 +51,143 @@ button{
     border: none;
     color: white;
     padding: 14px 20px;
+}
+.rdvPage{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px 72px;
+}
+.rdvHero{
+    padding: 34px;
+    border-radius: 30px;
+    background:
+        linear-gradient(145deg, rgba(36, 110, 88, 0.96), rgba(63, 150, 118, 0.9)),
+        #246e58;
+    color: white;
+    box-shadow: 0 24px 46px rgba(36, 110, 88, 0.22);
+}
+.eyebrow{
+    margin: 0 0 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.88rem;
+}
+.rdvHero h1{
+    margin: 0 0 12px;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05;
+}
+.heroText{
+    margin: 0;
+    max-width: 760px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.7;
+    font-size: 1.08rem;
+}
+.rdvStatusCard,
+.rdvEmptyState{
+    margin-top: 26px;
+    padding: 28px;
+    border-radius: 28px;
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
+    border: 1px solid rgba(36, 110, 88, 0.08);
+    line-height: 1.6;
+}
+.rdvEmptyState h2{
+    margin: 0 0 12px;
+    color: #1f5f4a;
+}
+.rdvEmptyState p{
+    margin: 0;
+    color: #54796c;
+}
+.primaryLink{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 18px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    background-color: #246e58;
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 14px 28px rgba(36, 110, 88, 0.2);
+}
+.rdvList{
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+}
+.rdvCard{
+    padding: 26px;
+    border-radius: 26px;
+    background-color: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
+    border: 1px solid rgba(36, 110, 88, 0.08);
+}
+.rdvCard h2{
+    margin: 0;
+    color: #1f5f4a;
+    font-size: 1.35rem;
+}
+.rdvTag{
+    display: inline-flex;
+    margin-top: 14px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background-color: #e6f8ef;
+    color: #246e58;
+    font-size: 0.9rem;
+}
+.rdvDetails{
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(36, 110, 88, 0.12);
+    display: grid;
+    gap: 14px;
+}
+.rdvInfo{
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.rdvInfoLabel{
+    color: #54796c;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.rdvInfoValue{
+    color: #173f32;
+    line-height: 1.6;
+    word-break: break-word;
+}
+.rdvInfoLink{
+    color: #1f5f4a;
+    text-decoration: none;
+}
+.rdvInfoLink:hover{
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .rdvPage{
+        padding: 32px 18px 52px;
+    }
+
+    .rdvHero,
+    .rdvStatusCard,
+    .rdvEmptyState,
+    .rdvCard{
+        padding: 24px;
+    }
+
+    nav{
+        gap: 12px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
 }

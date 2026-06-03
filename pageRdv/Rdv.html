@@ -7,6 +7,7 @@
         <title>Rendez-vous</title>
         <link rel="stylesheet" href="Rdv.css">
         <script src="../shared/auth.js" defer></script>
+        <script src="Rdv.js" defer></script>
     </head>
     <body data-require-auth="true">
         <header>
@@ -23,8 +24,31 @@
                 </div>
             </nav>
         </header>
-        <main>
-            
+        <main class="rdvPage">
+            <section class="rdvHero">
+                <p class="eyebrow">Mes rendez-vous</p>
+                <h1>Retrouvez vos rendez-vous enregistres</h1>
+                <p class="heroText">
+                    Cette page vous permet de consulter les rendez-vous que vous
+                    avez reserves, avec le medecin, la date, l'heure et les
+                    informations utiles du cabinet.
+                </p>
+            </section>
+
+            <section id="rdvStatusCard" class="rdvStatusCard">
+                Chargement de vos rendez-vous...
+            </section>
+
+            <section id="rdvEmptyState" class="rdvEmptyState" hidden>
+                <h2>Aucun rendez-vous enregistre</h2>
+                <p>
+                    Vous n'avez pas encore reserve de creneau. Rendez-vous sur
+                    la page docteur pour ouvrir une fiche et choisir un horaire.
+                </p>
+                <a class="primaryLink" href="../pageDocteur/Docteur.html">Voir les medecins</a>
+            </section>
+
+            <section id="rdvList" class="rdvList" hidden></section>
         </main>
     </body>
 </html>

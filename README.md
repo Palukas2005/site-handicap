@@ -18,3 +18,9 @@ Projet front statique + backend Node/Express pour HandiRepere.
 
 L'inscription et la connexion passent maintenant par l'API `POST /api/users/register`
 et `POST /api/users/login`, avec mots de passe hachés via `bcrypt`.
+
+## Rendez-vous
+
+Les rendez-vous sont enregistrés dans la même base PostgreSQL que le reste du projet.
+Il n'y a donc pas besoin d'une seconde base dédiée : le backend crée et utilise une
+table `appointments` au démarrage du serveur si la configuration `backend/.env` est valide.

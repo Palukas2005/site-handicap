@@ -79,6 +79,11 @@ button{
     gap: 28px;
     align-items: stretch;
 }
+.authLayoutStacked{
+    max-width: 760px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
 .authIntro{
     padding: 40px;
     border-radius: 32px;
@@ -88,7 +93,10 @@ button{
     color: white;
     box-shadow: 0 28px 48px rgba(36, 110, 88, 0.22);
 }
-.authEyebrow,
+.authIntroCompact{
+    padding: 28px 32px;
+}
+.authIntro > p:first-child,
 .cardEyebrow{
     margin: 0 0 12px;
     letter-spacing: 0.08em;
@@ -100,23 +108,14 @@ button{
     font-size: clamp(2rem, 4vw, 3.2rem);
     line-height: 1.08;
 }
+.authIntroCompact h1{
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
+}
 .authLead{
     margin: 0;
     font-size: 1.08rem;
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.92);
-}
-.authHighlights{
-    margin-top: 28px;
-    display: grid;
-    gap: 14px;
-}
-.authHighlights p{
-    margin: 0;
-    padding: 16px 18px;
-    border-radius: 18px;
-    background-color: rgba(255, 255, 255, 0.14);
-    line-height: 1.5;
 }
 .authCard{
     padding: 36px;
@@ -196,6 +195,10 @@ button{
     .authIntro,
     .authCard{
         padding: 28px;
+    }
+
+    .authIntroCompact{
+        padding: 24px 28px;
     }
 }
 
