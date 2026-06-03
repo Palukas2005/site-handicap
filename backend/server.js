@@ -14,7 +14,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use("/api/users", usersRouter);
-app.use(["/pageDocteur", "/pageRdv"], requirePageAuth);
+app.use(["/pageDocteur", "/pageRdv", "/pageProfil"], requirePageAuth);
 app.use(express.static(path.resolve(__dirname, "..")));
 
 app.get("/api/db-status", async (req, res) => {

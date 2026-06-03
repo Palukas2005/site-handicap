@@ -147,6 +147,23 @@ button{
 .medecinDetails a:hover{
     text-decoration: underline;
 }
+.medecinActions{
+    margin-top: 22px;
+}
+.profileLink{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 22px;
+    border-radius: 999px;
+    background-color: #246e58;
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 14px 28px rgba(36, 110, 88, 0.2);
+}
+.profileLink:hover{
+    background-color: #1d5947;
+}
 .statusMessage{
     grid-column: 1 / -1;
     margin: 0;

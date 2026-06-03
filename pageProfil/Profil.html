@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Profil medecin</title>
+        <link rel="stylesheet" href="Profil.css">
+        <script src="../shared/auth.js" defer></script>
+        <script src="Profil.js" defer></script>
+    </head>
+    <body data-require-auth="true">
+        <header>
+            <nav>
+                <div>
+                    <button class="colorGreen"><h2>HR</h2></button>
+                    <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
+                    <a href="../pageDocteur/Docteur.html"><button class="Button"><h3>Docteur</h3></button></a>
+                    <a href="../pageRdv/Rdv.html"><button class="Button"><h3>Rendez-vous</h3></button></a>
+                    <a href="#"><button class="Button"><h3>Contact</h3></button></a>
+                </div>
+                <div>
+                    <button class="logoutButton" data-logout-button hidden>Se deconnecter</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="profilePage">
+            <section id="profileEmptyState" class="profileEmptyState" hidden>
+                <p class="eyebrow">Fiche indisponible</p>
+                <h1>Aucun profil n'a ete selectionne.</h1>
+                <p>
+                    Retournez sur la page docteur pour ouvrir une fiche detaillee
+                    depuis un profil disponible.
+                </p>
+                <a class="ghostLink" href="../pageDocteur/Docteur.html">Revenir aux profils</a>
+            </section>
+
+            <section id="profileContent" class="profileContent" hidden>
+                <section class="profileHero">
+                    <div class="profilePhotoWrap">
+                        <img id="doctorPhoto" class="profilePhoto" src="" alt="Photo du medecin">
+                    </div>
+
+                    <div class="profileHeroContent">
+                        <p class="eyebrow">Fiche detaillee</p>
+                        <h1 id="doctorName">Profil medecin</h1>
+                        <p id="doctorCabinet" class="profileLead"></p>
+
+                        <div class="heroMeta">
+                            <span id="doctorCityMeta" class="heroPill"></span>
+                            <span id="doctorRegionMeta" class="heroPill"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="profileGrid">
+                    <article class="infoCard">
+                        <h2>Cabinet</h2>
+                        <p id="cabinetName" class="infoValue"></p>
+                        <p id="cabinetAddress" class="infoSubValue"></p>
+                    </article>
+
+                    <article class="infoCard">
+                        <h2>Contact professionnel</h2>
+                        <p class="infoRow">
+                            <span class="infoLabel">Email professionnel :</span>
+                            <a id="professionalEmail" class="infoLink" href="#"></a>
+                        </p>
+                        <p class="infoRow">
+                            <span class="infoLabel">Telephone :</span>
+                            <a id="doctorPhone" class="infoLink" href="#"></a>
+                        </p>
+                    </article>
+
+                    <article class="infoCard">
+                        <h2>Localisation</h2>
+                        <p class="infoRow">
+                            <span class="infoLabel">Ville :</span>
+                            <span id="doctorCity" class="infoValue"></span>
+                        </p>
+                        <p class="infoRow">
+                            <span class="infoLabel">Code postal :</span>
+                            <span id="doctorPostalCode" class="infoValue"></span>
+                        </p>
+                        <p class="infoRow">
+                            <span class="infoLabel">Region :</span>
+                            <span id="doctorRegion" class="infoValue"></span>
+                        </p>
+                        <p class="infoRow">
+                            <span class="infoLabel">Pays :</span>
+                            <span id="doctorCountry" class="infoValue"></span>
+                        </p>
+                    </article>
+
+                    <article class="infoCard">
+                        <h2>Informations a venir</h2>
+                        <p class="infoValue">
+                            Cette fiche est prete pour accueillir d'autres
+                            donnees plus tard: specialite, horaires, accessibilite,
+                            langues parlees, disponibilites et plus encore.
+                        </p>
+                    </article>
+                </section>
+
+                <section class="appointmentSection">
+                    <a id="appointmentLink" class="appointmentButton" href="../pageRdv/Rdv.html">
+                        Prendre rendez-vous
+                    </a>
+                    <p class="appointmentNote">
+                        Ce bouton est deja en place et pourra pointer vers ta future page dediee.
+                    </p>
+                </section>
+            </section>
+        </main>
+    </body>
+</html>

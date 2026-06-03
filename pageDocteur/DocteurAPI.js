@@ -2,6 +2,31 @@ document.addEventListener("DOMContentLoaded", () => {
     chargerMedecins();
 });
 
+function getProfileBaseUrl() {
+    if (window.location.protocol === "file:") {
+        return "http://localhost:3000/pageProfil/Profil.html";
+    }
+
+    return "/pageProfil/Profil.html";
+}
+
+function buildProfileUrl(personne) {
+    const params = new URLSearchParams({
+        fullName: `Dr ${personne.name.first} ${personne.name.last}`,
+        photo: personne.picture.large,
+        cabinet: `Cabinet du Dr ${personne.name.last}`,
+        professionalEmail: personne.email,
+        phone: personne.phone,
+        address: `${personne.location.street.number} ${personne.location.street.name}`,
+        city: personne.location.city,
+        postalCode: String(personne.location.postcode),
+        region: personne.location.state,
+        country: personne.location.country
+    });
+
+    return `${getProfileBaseUrl()}?${params.toString()}`;
+}
+
 async function chargerMedecins(){
     const resultats = document.getElementById("resultats");
 
@@ -45,6 +70,11 @@ async function chargerMedecins(){
                             <span>Email</span>
                             <a href="mailto:${personne.email}">${personne.email}</a>
                         </p>
+                    </div>
+                    <div class="medecinActions">
+                        <a class="profileLink" href="${buildProfileUrl(personne)}">
+                            Voir le profil
+                        </a>
                     </div>
                 </article>
             `;
