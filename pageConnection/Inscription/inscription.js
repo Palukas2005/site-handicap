@@ -1,6 +1,25 @@
 const registerForm = document.getElementById("registerForm");
 const apiBaseUrl = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 
+function parseApiResponse(responseText) {
+    if (!responseText) {
+        return {};
+    }
+
+    const trimmedResponse = responseText.trim();
+
+    if (!trimmedResponse || trimmedResponse.startsWith("<")) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(trimmedResponse);
+    } catch (error) {
+        console.error(error);
+        return {};
+    }
+}
+
 function getConnectionUrl() {
     if (window.location.protocol === "file:") {
         return "http://localhost:3000/pageConnection/Connection/pageConnection.html";
@@ -28,7 +47,8 @@ registerForm.addEventListener("submit", async function(event){
             })
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+        const data = parseApiResponse(responseText);
 
         if (!response.ok) {
             alert(data.message || "Inscription impossible.");

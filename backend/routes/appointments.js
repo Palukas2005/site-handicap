@@ -20,6 +20,59 @@ function getStringValue(value) {
     return typeof value === "string" ? value.trim() : "";
 }
 
+router.delete("/:appointmentId", async (req, res) => {
+    const session = getAuthenticatedSession(req);
+    const appointmentId = Number(req.params.appointmentId);
+
+    if (!session) {
+        return res.status(401).json({
+            message: "Non authentifie."
+        });
+    }
+
+    if (!pool) {
+        return res.status(503).json({
+            message: "Configuration PostgreSQL incomplète. Renseignez backend/.env avant d'utiliser l'authentification.",
+            missing: missingDbConfig
+        });
+    }
+
+    if (!Number.isInteger(appointmentId) || appointmentId <= 0) {
+        return res.status(400).json({
+            message: "Rendez-vous invalide."
+        });
+    }
+
+    try {
+        await ensureAppointmentsTable();
+
+        const result = await pool.query(
+            `
+                DELETE FROM appointments
+                WHERE id = $1 AND user_id = $2
+                RETURNING id
+            `,
+            [appointmentId, session.id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                message: "Rendez-vous introuvable."
+            });
+        }
+
+        return res.json({
+            message: "Rendez-vous supprime avec succes."
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Impossible de supprimer ce rendez-vous pour le moment."
+        });
+    }
+});
+
 router.get("/mine", async (req, res) => {
     const session = getAuthenticatedSession(req);
 

@@ -156,6 +156,11 @@ a{
     line-height: 1.7;
     word-break: break-word;
 }
+.infoLink.isMuted{
+    color: #54796c;
+    text-decoration: none;
+    pointer-events: none;
+}
 .infoLink + .infoLink{
     margin-top: 8px;
 }

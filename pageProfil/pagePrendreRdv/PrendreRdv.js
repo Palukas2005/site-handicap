@@ -20,6 +20,25 @@ function getApiBaseUrl() {
     return window.location.protocol === "file:" ? "http://localhost:3000" : "";
 }
 
+function parseApiResponse(responseText, fallbackMessage = "") {
+    if (!responseText) {
+        return fallbackMessage ? { message: fallbackMessage } : {};
+    }
+
+    const trimmedResponse = responseText.trim();
+
+    if (!trimmedResponse || trimmedResponse.startsWith("<")) {
+        return fallbackMessage ? { message: fallbackMessage } : {};
+    }
+
+    try {
+        return JSON.parse(trimmedResponse);
+    } catch (error) {
+        console.error(error);
+        return fallbackMessage ? { message: fallbackMessage } : {};
+    }
+}
+
 function getSearchValue(searchParams, key, fallback = "") {
     const value = searchParams.get(key);
     return value && value.trim() ? value.trim() : fallback;
@@ -195,13 +214,18 @@ async function loadAvailability() {
         );
 
         const responseText = await response.text();
-        const data = responseText ? JSON.parse(responseText) : {};
+        const data = parseApiResponse(
+            responseText,
+            "Le backend doit etre redemarre pour charger les disponibilites enregistrees."
+        );
 
         if (!response.ok) {
             throw new Error(data.message || "Impossible de charger le planning.");
         }
 
-        unavailableSlots = new Set(data.unavailableSlots.map((slot) => {
+        const unavailableSlotsData = Array.isArray(data.unavailableSlots) ? data.unavailableSlots : [];
+
+        unavailableSlots = new Set(unavailableSlotsData.map((slot) => {
             return `${slot.appointmentDate}|${slot.appointmentTime}`;
         }));
 
@@ -245,7 +269,10 @@ async function saveAppointment() {
         });
 
         const responseText = await response.text();
-        const data = responseText ? JSON.parse(responseText) : {};
+        const data = parseApiResponse(
+            responseText,
+            "Le backend doit etre redemarre pour enregistrer le rendez-vous."
+        );
 
         if (!response.ok) {
             throw new Error(data.message || "Impossible d'enregistrer le rendez-vous.");
@@ -267,10 +294,14 @@ async function saveAppointment() {
 }
 
 function hydrateDoctorSummary() {
+    const summaryParts = [doctorContext.cabinet, doctorContext.address].filter(Boolean);
+    const locationParts = [doctorContext.city, doctorContext.postalCode].filter(Boolean).join(" ");
+    const regionParts = [locationParts, doctorContext.region].filter(Boolean);
+
     document.getElementById("doctorName").textContent = doctorContext.doctorName;
-    document.getElementById("doctorSummary").textContent = `${doctorContext.cabinet} - ${doctorContext.address}`;
-    document.getElementById("doctorLocation").textContent = `${doctorContext.city} ${doctorContext.postalCode} - ${doctorContext.region}`;
-    document.getElementById("doctorContact").textContent = doctorContext.professionalEmail;
+    document.getElementById("doctorSummary").textContent = summaryParts.join(" - ") || "Informations du cabinet non renseignees";
+    document.getElementById("doctorLocation").textContent = regionParts.join(" - ") || "Localisation non renseignee";
+    document.getElementById("doctorContact").textContent = doctorContext.professionalEmail || "Email professionnel non renseigne";
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

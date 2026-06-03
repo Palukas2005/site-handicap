@@ -2,24 +2,62 @@ function getApiBaseUrl() {
     return window.location.protocol === "file:" ? "http://localhost:3000" : "";
 }
 
-function getHomeUrl() {
-    const pathname = window.location.pathname.replace(/\\/g, "/");
+function parseApiResponse(responseText) {
+    if (!responseText) {
+        return {};
+    }
 
+    const trimmedResponse = responseText.trim();
+
+    if (!trimmedResponse || trimmedResponse.startsWith("<")) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(trimmedResponse);
+    } catch (error) {
+        console.error(error);
+        return {};
+    }
+}
+
+function getProjectRootFileUrl() {
+    const pathname = window.location.pathname.replace(/\\/g, "/");
+    const knownFolders = [
+        "/pageProfil/pagePrendreRdv/",
+        "/pageConnection/Connection/",
+        "/pageConnection/Inscription/",
+        "/pageAccueil/",
+        "/pageDocteur/",
+        "/pageRdv/",
+        "/pageProfil/"
+    ];
+    const matchingFolder = knownFolders.find((folder) => {
+        return pathname.includes(folder);
+    });
+
+    if (matchingFolder) {
+        const projectRootPath = pathname.slice(0, pathname.indexOf(matchingFolder) + 1);
+        return new URL(`file://${projectRootPath}`);
+    }
+
+    return new URL(".", window.location.href);
+}
+
+function getHomeUrl() {
     if (window.location.protocol !== "file:") {
         return "/pageAccueil/index.html";
     }
 
-    return pathname.includes("/pageAccueil/") ? "index.html" : "../pageAccueil/index.html";
+    return new URL("pageAccueil/index.html", getProjectRootFileUrl()).href;
 }
 
 function getLoginUrl() {
-    const pathname = window.location.pathname.replace(/\\/g, "/");
-
     if (window.location.protocol !== "file:") {
         return "/pageConnection/Connection/pageConnection.html";
     }
 
-    return pathname.includes("/pageConnection/") ? "Connection/pageConnection.html" : "../pageConnection/Connection/pageConnection.html";
+    return new URL("pageConnection/Connection/pageConnection.html", getProjectRootFileUrl()).href;
 }
 
 function getPostLogoutUrl() {
@@ -108,7 +146,8 @@ async function getSessionUser() {
             throw new Error("Impossible de recuperer la session utilisateur.");
         }
 
-        const data = await response.json();
+        const responseText = await response.text();
+        const data = parseApiResponse(responseText);
         return data.user || null;
     } catch (error) {
         console.error(error);

@@ -1,6 +1,25 @@
 const loginForm = document.getElementById("loginForm");
 const apiBaseUrl = window.location.protocol === "file:" ? "http://localhost:3000" : "";
 
+function parseApiResponse(responseText) {
+    if (!responseText) {
+        return {};
+    }
+
+    const trimmedResponse = responseText.trim();
+
+    if (!trimmedResponse || trimmedResponse.startsWith("<")) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(trimmedResponse);
+    } catch (error) {
+        console.error(error);
+        return {};
+    }
+}
+
 function getDocteurUrl() {
     if (window.location.protocol === "file:") {
         return "http://localhost:3000/pageDocteur/Docteur.html";
@@ -28,7 +47,8 @@ loginForm.addEventListener("submit", async function(event){
             })
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+        const data = parseApiResponse(responseText);
 
         if (!response.ok) {
             alert(data.message || "Connexion impossible.");
