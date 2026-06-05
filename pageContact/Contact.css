@@ -1,0 +1,231 @@
+body{
+    margin: 0;
+    color: #173f32;
+    font-family: cursive;
+    background:
+        radial-gradient(circle at top left, rgba(79, 170, 137, 0.2), transparent 28%),
+        linear-gradient(180deg, #f2fbf6 0%, #dff4eb 100%);
+}
+header{
+    background-color: rgba(255, 255, 255, 0.96);
+    padding: 20px 0 20px 20px;
+    box-shadow: 0 8px 24px rgba(36, 110, 88, 0.08);
+}
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+button,
+input,
+textarea{
+    font-family: cursive;
+}
+button{
+    cursor: pointer;
+}
+a{
+    color: inherit;
+}
+.colorGreen{
+    border-radius: 50px;
+    justify-content: center;
+    margin-right: 20px;
+    background-color: #246e58;
+    border: none;
+    color: white;
+    min-width: 60px;
+}
+.Button{
+    border-radius: 50px;
+    justify-content: center;
+    margin-right: 20px;
+    border: solid rgba(0, 128, 90, 0.312);
+    background-color: #dff4eb;
+}
+.activeButton{
+    background-color: #cfeee2;
+    border-color: rgba(36, 110, 88, 0.35);
+}
+.logoutButton{
+    border-radius: 50px;
+    margin-right: 20px;
+    background-color: #b94141;
+    border: none;
+    color: white;
+    padding: 14px 20px;
+}
+.contactPage{
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px 72px;
+}
+.contactHero{
+    padding: 34px;
+    border-radius: 30px;
+    background:
+        linear-gradient(145deg, rgba(36, 110, 88, 0.96), rgba(63, 150, 118, 0.9)),
+        #246e58;
+    color: white;
+    box-shadow: 0 24px 46px rgba(36, 110, 88, 0.22);
+}
+.eyebrow{
+    margin: 0 0 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.88rem;
+}
+.contactHero h1{
+    margin: 0 0 12px;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05;
+}
+.heroText{
+    margin: 0;
+    max-width: 760px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.7;
+    font-size: 1.08rem;
+}
+.contactGrid{
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+}
+.infoCard,
+.contactFormSection{
+    padding: 28px;
+    border-radius: 28px;
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
+    border: 1px solid rgba(36, 110, 88, 0.08);
+}
+.infoCard h2,
+.sectionHeader h2{
+    margin: 0 0 14px;
+    color: #1f5f4a;
+}
+.infoRow{
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.infoRow + .infoRow{
+    margin-top: 14px;
+}
+.infoLabel{
+    color: #54796c;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.infoLink{
+    color: #1f5f4a;
+    text-decoration: none;
+    word-break: break-word;
+}
+.infoLink:hover{
+    text-decoration: underline;
+}
+.infoText,
+.sectionHeader p,
+.contactStatus{
+    margin: 0;
+    line-height: 1.7;
+    color: #54796c;
+}
+.infoText + .infoText{
+    margin-top: 12px;
+}
+.contactFormSection{
+    margin-top: 26px;
+}
+.contactForm{
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+.field{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.field span{
+    color: #1f5f4a;
+}
+.field input,
+.field textarea{
+    border-radius: 18px;
+    border: 1px solid rgba(36, 110, 88, 0.16);
+    background-color: #f9fdfb;
+    padding: 16px 18px;
+    color: #173f32;
+    font-size: 1rem;
+    resize: vertical;
+}
+.field input:focus,
+.field textarea:focus{
+    outline: 2px solid rgba(36, 110, 88, 0.2);
+    border-color: #246e58;
+}
+.fieldLarge{
+    grid-column: 1 / -1;
+}
+.formActions{
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+}
+.submitButton{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 22px;
+    border-radius: 999px;
+    border: none;
+}
+.submitButton{
+    background-color: #246e58;
+    color: white;
+    box-shadow: 0 14px 28px rgba(36, 110, 88, 0.2);
+}
+.submitButton:disabled{
+    opacity: 0.72;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.contactStatus{
+    grid-column: 1 / -1;
+    min-height: 24px;
+}
+.contactStatus.success{
+    color: #1f7a59;
+}
+.contactStatus.error{
+    color: #a12e2e;
+}
+
+@media (max-width: 720px) {
+    nav{
+        gap: 12px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .contactPage{
+        padding: 32px 18px 52px;
+    }
+
+    .contactHero,
+    .infoCard,
+    .contactFormSection{
+        padding: 24px;
+    }
+
+    .contactForm{
+        grid-template-columns: 1fr;
+    }
+}

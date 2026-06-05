@@ -5,6 +5,7 @@ const { pool, missingDbConfig } = require("./db");
 const { requirePageAuth } = require("./auth");
 const { ensureAppointmentsTable } = require("./data/appointmentsRepository");
 const appointmentsRouter = require("./routes/appointments");
+const contactRouter = require("./routes/contact");
 const usersRouter = require("./routes/users");
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use("/api/appointments", appointmentsRouter);
+app.use("/api/contact", contactRouter);
 app.use("/api/users", usersRouter);
 app.use(["/pageDocteur", "/pageRdv", "/pageProfil"], disableProtectedPageCache, requirePageAuth);
 app.use(express.static(path.resolve(__dirname, "..")));
