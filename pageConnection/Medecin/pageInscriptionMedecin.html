@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Inscription medecin</title>
+        <link rel="stylesheet" href="../ConnectionInscription.css">
+        <script src="../../shared/doctorConfig.js" defer></script>
+        <script src="../../shared/auth.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <div class="navGroup">
+                    <a class="brandMark" href="../../pageAccueil/index.html">HR</a>
+                    <a class="backLink colorGreen" href="../../pageAccueil/index.html">
+                        Retour
+                    </a>
+                </div>
+                <div class="navActions">
+                    <button class="logoutButton" type="button" data-logout-button hidden>
+                        Se deconnecter
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="authLayout authLayoutStacked">
+            <section class="authIntro authIntroCompact authIntroDoctor">
+                <p>Espace medecin</p>
+                <h1>Creez votre compte medecin HandiRepere.</h1>
+                <p class="authLead">
+                    Ouvrez un espace professionnel pour preparer la suite du
+                    parcours medecin sur la plateforme et centraliser vos
+                    informations essentielles.
+                </p>
+            </section>
+
+            <section class="authCard">
+                <div class="authCardHeader">
+                    <p class="cardEyebrow">Nouveau compte medecin</p>
+                    <h2>S'inscrire en tant que medecin</h2>
+                    <p class="authCardText">
+                        Renseignez vos informations professionnelles de base pour creer votre acces medecin unique.
+                    </p>
+                </div>
+
+                <form id="doctorRegisterForm" class="authForm">
+                    <div class="authFormRow">
+                        <label for="doctorFullName">Nom complet</label>
+                        <input type="text" id="doctorFullName" name="fullName" required>
+                    </div>
+
+                    <div class="authFormRow">
+                        <label for="doctorSpecialty">Specialite</label>
+                        <input type="text" id="doctorSpecialty" name="specialty" placeholder="Generaliste, ORL, cardiologue...">
+                    </div>
+
+                    <div class="authFormRow">
+                        <label for="doctorCabinetName">Nom du cabinet</label>
+                        <input type="text" id="doctorCabinetName" name="cabinetName" placeholder="Cabinet du Dr ...">
+                    </div>
+
+                    <div class="authFormRow">
+                        <label for="doctorRegisterEmail">Email professionnel</label>
+                        <input type="email" id="doctorRegisterEmail" name="email" required readonly>
+                    </div>
+
+                    <div class="authFormRow">
+                        <label for="doctorRegisterPassword">Mot de passe</label>
+                        <input type="password" id="doctorRegisterPassword" name="password" required>
+                    </div>
+
+                    <button class="colorGreen submitButton" type="submit">
+                        Creer mon compte medecin
+                    </button>
+                </form>
+
+                <div class="authSwitch">
+                    <p>Vous avez deja un compte medecin ?</p>
+                    <a class="secondaryLink" href="pageConnectionMedecin.html">
+                        Me connecter
+                    </a>
+                </div>
+            </section>
+        </main>
+
+        <script src="inscriptionMedecin.js" defer></script>
+    </body>
+</html>

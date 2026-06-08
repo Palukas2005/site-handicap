@@ -34,6 +34,10 @@ button{
     border: solid rgba(0, 128, 90, 0.312);
     background-color: #dff4eb;
 }
+.activeButton{
+    background-color: #cfeee2;
+    border-color: rgba(36, 110, 88, 0.35);
+}
 .logoutButton{
     border-radius: 50px;
     margin-right: 20px;
@@ -74,6 +78,39 @@ button{
 }
 .directoryResults{
     margin-top: 28px;
+}
+.searchPanel{
+    margin-top: 24px;
+    padding: 24px 28px;
+    border-radius: 24px;
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 16px 30px rgba(36, 110, 88, 0.1);
+}
+.searchField{
+    display: grid;
+    gap: 8px;
+    color: #1f5f4a;
+}
+.searchField span{
+    font-size: 1rem;
+}
+.searchField input{
+    border: 1px solid rgba(36, 110, 88, 0.16);
+    border-radius: 18px;
+    padding: 15px 18px;
+    background-color: #f9fdfb;
+    color: #173f32;
+    font-family: cursive;
+    font-size: 1rem;
+}
+.searchField input:focus{
+    outline: 2px solid rgba(36, 110, 88, 0.18);
+    border-color: #246e58;
+}
+.searchHint{
+    margin: 12px 0 0;
+    color: #54796c;
+    line-height: 1.6;
 }
 .medecinsGrid{
     display: grid;

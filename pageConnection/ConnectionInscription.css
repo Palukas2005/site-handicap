@@ -178,6 +178,9 @@ button{
     margin: 0 0 10px;
     color: #54796c;
 }
+.authNote{
+    margin-top: 18px;
+}
 .secondaryLink{
     color: #246e58;
     font-weight: 700;
@@ -185,6 +188,11 @@ button{
 }
 .secondaryLink:hover{
     text-decoration: underline;
+}
+.authIntroDoctor{
+    background:
+        linear-gradient(150deg, rgba(27, 86, 132, 0.96), rgba(51, 140, 178, 0.92)),
+        #1f6f94;
 }
 
 @media (max-width: 900px) {

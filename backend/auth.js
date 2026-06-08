@@ -40,12 +40,15 @@ function getSession(req) {
     return sessions.get(token) || null;
 }
 
-function createSession(user) {
+function createSession(user, role = "patient") {
     const token = crypto.randomBytes(32).toString("hex");
 
     sessions.set(token, {
+        doctorKey: user.doctorKey || "",
         id: user.id,
         email: user.email,
+        name: user.name || user.fullName || "",
+        role,
         createdAt: Date.now()
     });
 
@@ -81,12 +84,46 @@ function requirePageAuth(req, res, next) {
     res.redirect("/pageConnection/Connection/pageConnection.html");
 }
 
+function requirePatientAuth(req, res, next) {
+    const session = getSession(req);
+
+    if (session && session.role === "patient") {
+        next();
+        return;
+    }
+
+    if (session && session.role === "doctor") {
+        res.redirect("/pageMedecin/EspaceMedecin.html");
+        return;
+    }
+
+    res.redirect("/pageConnection/Connection/pageConnection.html");
+}
+
+function requireDoctorAuth(req, res, next) {
+    const session = getSession(req);
+
+    if (session && session.role === "doctor") {
+        next();
+        return;
+    }
+
+    if (session && session.role === "patient") {
+        res.redirect("/pageDocteur/Docteur.html");
+        return;
+    }
+
+    res.redirect("/pageConnection/Medecin/pageConnectionMedecin.html");
+}
+
 module.exports = {
     clearSessionCookie,
     createSession,
     deleteSession,
     getSession,
     getSessionToken,
+    requireDoctorAuth,
     requirePageAuth,
+    requirePatientAuth,
     setSessionCookie
 };

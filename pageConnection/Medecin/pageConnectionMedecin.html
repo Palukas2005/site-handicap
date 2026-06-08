@@ -3,12 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Page de connexion</title>
-
+        <title>Connexion medecin</title>
         <link rel="stylesheet" href="../ConnectionInscription.css">
+        <script src="../../shared/doctorConfig.js" defer></script>
         <script src="../../shared/auth.js" defer></script>
     </head>
-
     <body>
         <header>
             <nav>
@@ -27,54 +26,50 @@
         </header>
 
         <main class="authLayout authLayoutStacked">
-            <section class="authIntro authIntroCompact">
-                <p>Connexion securisee</p>
-                <h1>Retrouvez votre espace HandiRepere.</h1>
+            <section class="authIntro authIntroCompact authIntroDoctor">
+                <p>Espace medecin</p>
+                <h1>Accedez a votre espace professionnel HandiRepere.</h1>
                 <p class="authLead">
-                    Connectez-vous pour acceder a vos pages protegees, retrouver
-                    les professionnels disponibles et poursuivre vos demarches
-                    sans perdre vos reperes.
+                    Connectez-vous pour retrouver votre espace medecin, preparer
+                    la suite de vos rendez-vous et gerer plus facilement votre
+                    presence sur la plateforme.
                 </p>
             </section>
 
             <section class="authCard">
                 <div class="authCardHeader">
-                    <p class="cardEyebrow">Bon retour</p>
-                    <h2>Se connecter</h2>
+                    <p class="cardEyebrow">Acces professionnel</p>
+                    <h2>Connexion medecin</h2>
                     <p class="authCardText">
-                        Entrez votre email et votre mot de passe pour ouvrir votre session.
+                        Entrez le mot de passe de votre compte medecin rattache a l'adresse professionnelle prevue.
                     </p>
                 </div>
 
-                <form id="loginForm" class="authForm">
+                <form id="doctorLoginForm" class="authForm">
                     <div class="authFormRow">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <label for="doctorEmail">Email professionnel</label>
+                        <input type="email" id="doctorEmail" name="email" required readonly>
                     </div>
 
                     <div class="authFormRow">
-                        <label for="password">Mot de passe</label>
-                        <input type="password" id="password" name="password" required>
+                        <label for="doctorPassword">Mot de passe</label>
+                        <input type="password" id="doctorPassword" name="password" required>
                     </div>
 
                     <button class="colorGreen submitButton" type="submit">
-                        Se connecter
+                        Se connecter en tant que medecin
                     </button>
                 </form>
 
                 <div class="authSwitch">
-                    <p>Pas encore de compte ?</p>
-                    <a class="secondaryLink" href="../Inscription/pageInscription.html">
-                        Creer un compte
-                    </a>
-                    <p class="authNote">Vous etes medecin ?</p>
-                    <a class="secondaryLink" href="../Medecin/pageConnectionMedecin.html">
-                        Acceder a la connexion medecin
+                    <p>Pas encore de compte medecin ?</p>
+                    <a class="secondaryLink" href="pageInscriptionMedecin.html">
+                        Creer mon espace medecin
                     </a>
                 </div>
             </section>
         </main>
 
-        <script src="Connexion.js"></script>
+        <script src="ConnexionMedecin.js" defer></script>
     </body>
 </html>

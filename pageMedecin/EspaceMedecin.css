@@ -3,8 +3,9 @@ body{
     color: #173f32;
     font-family: cursive;
     background:
-        radial-gradient(circle at top left, rgba(79, 170, 137, 0.2), transparent 28%),
-        linear-gradient(180deg, #f2fbf6 0%, #dff4eb 100%);
+        radial-gradient(circle at top left, rgba(79, 170, 137, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(36, 110, 88, 0.15), transparent 26%),
+        linear-gradient(180deg, #f5fcf8 0%, #dff4eb 100%);
 }
 header{
     background-color: rgba(255, 255, 255, 0.96);
@@ -17,8 +18,8 @@ nav{
     align-items: center;
 }
 button{
-    cursor: pointer;
     font-family: cursive;
+    cursor: pointer;
 }
 a{
     color: inherit;
@@ -51,18 +52,26 @@ a{
     color: white;
     padding: 14px 20px;
 }
-.appointmentPage{
-    max-width: 1180px;
+.doctorPage{
+    max-width: 1280px;
     margin: 0 auto;
     padding: 48px 24px 72px;
 }
-.appointmentContent{
-    display: grid;
-    gap: 28px;
+.doctorStatusCard,
+.doctorHeaderCard,
+.planningCard,
+.doctorCard{
+    padding: 28px;
+    border-radius: 28px;
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
+    border: 1px solid rgba(36, 110, 88, 0.08);
 }
-.appointmentHero{
-    padding: 34px;
-    border-radius: 30px;
+.doctorContent{
+    display: grid;
+    gap: 24px;
+}
+.doctorHeaderCard{
     background:
         linear-gradient(145deg, rgba(36, 110, 88, 0.96), rgba(63, 150, 118, 0.9)),
         #246e58;
@@ -75,49 +84,34 @@ a{
     text-transform: uppercase;
     font-size: 0.88rem;
 }
-.appointmentHero h1{
-    margin: 0 0 10px;
+.doctorHeaderCard h1{
+    margin: 0;
     font-size: clamp(2rem, 4vw, 3rem);
     line-height: 1.05;
 }
-.heroLead{
-    margin: 0;
-    line-height: 1.6;
-    font-size: 1.08rem;
+.doctorHeaderMeta{
+    margin: 12px 0 0;
     color: rgba(255, 255, 255, 0.92);
+    line-height: 1.7;
 }
-.heroMeta{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 20px;
-}
-.heroPill{
-    padding: 10px 16px;
-    border-radius: 999px;
-    background-color: rgba(255, 255, 255, 0.14);
-}
-.bookingLayout{
+.doctorLayout{
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.8fr);
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
     gap: 24px;
     align-items: start;
 }
-.planningCard,
-.summaryCard,
-.emptyState{
-    padding: 28px;
-    border-radius: 28px;
-    background-color: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
-    border: 1px solid rgba(36, 110, 88, 0.08);
+.doctorSidebar{
+    display: grid;
+    gap: 22px;
 }
-.sectionHeader h2{
+.sectionHeader h2,
+.doctorCard h2{
     margin: 0 0 10px;
     color: #1f5f4a;
     font-size: 1.5rem;
 }
-.sectionHeader p{
+.sectionHeader p,
+.doctorCardText{
     margin: 0;
     line-height: 1.6;
     color: #54796c;
@@ -162,7 +156,7 @@ a{
 .planningGrid{
     display: grid;
     gap: 10px;
-    min-width: 1020px;
+    min-width: 1100px;
 }
 .matrixCornerCell,
 .matrixHeaderCell,
@@ -187,14 +181,9 @@ a{
     text-align: center;
 }
 .matrixHeaderCell h3{
-    margin: 0 0 4px;
+    margin: 0;
     color: #1f5f4a;
     font-size: 1.05rem;
-}
-.matrixHeaderCell p{
-    margin: 0;
-    color: #54796c;
-    font-size: 0.92rem;
 }
 .matrixSlotCell{
     min-height: 64px;
@@ -223,27 +212,31 @@ a{
 }
 .slotButton.unavailable{
     background-color: #e7ecea;
-    color: #8a9893;
-    cursor: not-allowed;
+    color: #66736f;
 }
-.summaryBlock + .summaryBlock{
-    margin-top: 18px;
+.slotButton.unavailable:hover{
+    transform: translateY(-1px);
+    background-color: #dde4e1;
 }
-.summaryLabel{
-    margin: 0 0 6px;
+.doctorInfo{
+    margin: 18px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.doctorInfoLabel{
     color: #54796c;
+    font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-size: 0.9rem;
 }
-.summaryValue{
-    margin: 0;
+.doctorInfoValue{
     color: #173f32;
-    line-height: 1.6;
+    line-height: 1.7;
 }
-.appointmentButton{
+.doctorActionButton{
     width: 100%;
-    margin-top: 24px;
+    margin-top: 22px;
     padding: 16px 20px;
     border-radius: 999px;
     border: none;
@@ -251,61 +244,53 @@ a{
     color: white;
     box-shadow: 0 16px 28px rgba(36, 110, 88, 0.18);
 }
-.appointmentButton:disabled{
+.doctorActionButton:disabled{
     background-color: #8fb9ab;
     cursor: not-allowed;
     box-shadow: none;
 }
-.saveStatus{
+.doctorActionStatus{
     min-height: 24px;
-    margin: 16px 0 0;
-    color: #54796c;
+    margin: 14px 0 0;
     line-height: 1.5;
+    color: #54796c;
 }
-.saveStatus.success{
+.doctorActionStatus.success{
     color: #1f7a59;
 }
-.saveStatus.error{
+.doctorActionStatus.error{
     color: #a12e2e;
 }
-.ghostLink{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-    padding: 14px 22px;
-    border-radius: 999px;
-    border: 1px solid rgba(36, 110, 88, 0.18);
-    text-decoration: none;
-    color: #246e58;
-    background-color: #eef8f2;
+.doctorList{
+    margin: 0;
+    padding-left: 20px;
+    display: grid;
+    gap: 12px;
+    line-height: 1.6;
+    color: #173f32;
 }
 
-@media (max-width: 920px) {
-    .bookingLayout{
+@media (max-width: 1080px) {
+    .doctorLayout{
         grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 640px) {
-    header{
-        padding: 18px 0 18px 18px;
-    }
-
+@media (max-width: 720px) {
     nav{
         gap: 12px;
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .appointmentPage{
+    .doctorPage{
         padding: 32px 18px 52px;
     }
 
-    .appointmentHero,
+    .doctorStatusCard,
+    .doctorHeaderCard,
     .planningCard,
-    .summaryCard,
-    .emptyState{
+    .doctorCard{
         padding: 24px;
     }
 }

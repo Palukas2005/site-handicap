@@ -43,6 +43,10 @@ button{
     border: solid rgba(0, 128, 90, 0.312);
     background-color: #dff4eb;
 }
+.disabledNavButton{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 .logoutButton{
     border-radius: 50px;
     margin-right: 20px;
@@ -84,4 +88,7 @@ img{
 }
 footer{
     margin-left: 150px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
 }

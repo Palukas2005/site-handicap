@@ -44,6 +44,10 @@ button{
     border: solid rgba(0, 128, 90, 0.312);
     background-color: #dff4eb;
 }
+.activeButton{
+    background-color: #cfeee2;
+    border-color: rgba(36, 110, 88, 0.35);
+}
 .logoutButton{
     border-radius: 50px;
     margin-right: 20px;

@@ -25,10 +25,12 @@ function getProjectRootFileUrl() {
     const pathname = window.location.pathname.replace(/\\/g, "/");
     const knownFolders = [
         "/pageProfil/pagePrendreRdv/",
+        "/pageConnection/Medecin/",
         "/pageConnection/Connection/",
         "/pageConnection/Inscription/",
         "/pageAccueil/",
         "/pageDocteur/",
+        "/pageMedecin/",
         "/pageRdv/",
         "/pageProfil/"
     ];
@@ -58,6 +60,30 @@ function getLoginUrl() {
     }
 
     return new URL("pageConnection/Connection/pageConnection.html", getProjectRootFileUrl()).href;
+}
+
+function getDoctorLoginUrl() {
+    if (window.location.protocol !== "file:") {
+        return "/pageConnection/Medecin/pageConnectionMedecin.html";
+    }
+
+    return new URL("pageConnection/Medecin/pageConnectionMedecin.html", getProjectRootFileUrl()).href;
+}
+
+function getPatientSpaceUrl() {
+    if (window.location.protocol !== "file:") {
+        return "/pageDocteur/Docteur.html";
+    }
+
+    return new URL("pageDocteur/Docteur.html", getProjectRootFileUrl()).href;
+}
+
+function getDoctorSpaceUrl() {
+    if (window.location.protocol !== "file:") {
+        return "/pageMedecin/EspaceMedecin.html";
+    }
+
+    return new URL("pageMedecin/EspaceMedecin.html", getProjectRootFileUrl()).href;
 }
 
 function getPostLogoutUrl() {
@@ -173,6 +199,7 @@ async function logout() {
 async function syncAuthState() {
     const logoutButtons = document.querySelectorAll("[data-logout-button]");
     const requireAuth = document.body.dataset.requireAuth === "true";
+    const requiredRole = document.body.dataset.requireRole || "";
     let sessionUser;
 
     clearLegacyAuthState();
@@ -184,12 +211,17 @@ async function syncAuthState() {
     sessionUser = await getSessionUser();
 
     if (requireAuth && !sessionUser) {
-        if (hasLogoutGuard()) {
+        if (hasLogoutGuard() && requiredRole !== "doctor") {
             redirectTo(getPostLogoutUrl());
             return;
         }
 
-        redirectTo(getLoginUrl());
+        redirectTo(requiredRole === "doctor" ? getDoctorLoginUrl() : getLoginUrl());
+        return;
+    }
+
+    if (requireAuth && requiredRole && sessionUser && sessionUser.role !== requiredRole) {
+        redirectTo(sessionUser.role === "doctor" ? getDoctorSpaceUrl() : getPatientSpaceUrl());
         return;
     }
 

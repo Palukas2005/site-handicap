@@ -1,5 +1,10 @@
 const express = require("express");
+const doctorConfig = require("../../shared/doctorConfig");
 const { getSession } = require("../auth");
+const {
+    getDoctorWeeklyAvailability,
+    isDoctorSlotAvailable
+} = require("../data/doctorAvailabilityRepository");
 const { pool, missingDbConfig } = require("../db");
 const { ensureAppointmentsTable } = require("../data/appointmentsRepository");
 
@@ -18,6 +23,21 @@ function normalizeDoctorKey(doctorKey) {
 
 function getStringValue(value) {
     return typeof value === "string" ? value.trim() : "";
+}
+
+function getAppointmentDayOfWeek(dateString) {
+    if (!DATE_PATTERN.test(dateString)) {
+        return null;
+    }
+
+    const [year, month, day] = dateString.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    return date.getDay();
 }
 
 router.delete("/:appointmentId", async (req, res) => {
@@ -160,6 +180,7 @@ router.get("/availability", async (req, res) => {
 
     try {
         await ensureAppointmentsTable();
+        const weeklyAvailability = await getDoctorWeeklyAvailability(doctorKey);
 
         const result = await pool.query(
             `
@@ -175,6 +196,9 @@ router.get("/availability", async (req, res) => {
         );
 
         return res.json({
+            weeklyAvailability,
+            weeklyDayOrder: doctorConfig.weeklyDayOrder,
+            weeklyTimeSlots: doctorConfig.weeklyTimeSlots,
             unavailableSlots: result.rows.map((row) => {
                 return {
                     appointmentDate: row.appointment_date,
@@ -223,6 +247,26 @@ router.post("/", async (req, res) => {
 
     try {
         await ensureAppointmentsTable();
+
+        const appointmentDayOfWeek = getAppointmentDayOfWeek(appointmentDate);
+
+        if (appointmentDayOfWeek === null) {
+            return res.status(400).json({
+                message: "Date de rendez-vous invalide."
+            });
+        }
+
+        const slotIsAvailable = await isDoctorSlotAvailable(
+            doctorKey,
+            appointmentDayOfWeek,
+            appointmentTime
+        );
+
+        if (!slotIsAvailable) {
+            return res.status(409).json({
+                message: "Ce creneau n'est pas disponible dans le planning du medecin."
+            });
+        }
 
         const result = await pool.query(
             `

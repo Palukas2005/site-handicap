@@ -1,20 +1,49 @@
 const DAYS_TO_SHOW = 7;
-const SCHEDULE_TEMPLATE = {
-    0: [],
-    1: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
-    2: ["10:00", "11:00", "14:00", "15:00", "16:00"],
-    3: ["09:00", "10:00", "11:00", "14:00"],
-    4: ["10:00", "11:00", "14:00", "15:00", "16:00", "17:00"],
-    5: ["09:00", "10:00", "14:00", "15:00"],
-    6: []
+const doctorConfig = window.HANDIREPERE_DOCTOR_CONFIG || {
+    weeklyAvailabilityTemplate: {
+        0: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+        1: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+        2: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+        3: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+        4: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+        5: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+        6: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
+    },
+    weeklyTimeSlots: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
 };
-const ALL_TIME_SLOTS = Array.from(
-    new Set(Object.values(SCHEDULE_TEMPLATE).flat())
-).sort();
 
 let doctorContext = null;
 let unavailableSlots = new Set();
 let selectedSlotKey = "";
+let weeklyAvailabilityMap = createAvailabilityMapFromTemplate({});
+let planningLoaded = false;
+
+function createAvailabilityMapFromTemplate(template) {
+    return new Map(Array.from({ length: 7 }, (_, dayOfWeek) => {
+        const availableSlots = Array.isArray(template?.[dayOfWeek]) ? template[dayOfWeek] : [];
+        return [dayOfWeek, new Set(availableSlots)];
+    }));
+}
+
+function createAvailabilityMapFromResponse(weeklyAvailability) {
+    const availabilityMap = createAvailabilityMapFromTemplate({});
+
+    if (!Array.isArray(weeklyAvailability)) {
+        return availabilityMap;
+    }
+
+    weeklyAvailability.forEach((slot) => {
+        if (!slot || slot.isAvailable !== true) {
+            return;
+        }
+
+        const daySlots = availabilityMap.get(slot.dayOfWeek) || new Set();
+        daySlots.add(slot.timeSlot);
+        availabilityMap.set(slot.dayOfWeek, daySlots);
+    });
+
+    return availabilityMap;
+}
 
 function getApiBaseUrl() {
     return window.location.protocol === "file:" ? "http://localhost:3000" : "";
@@ -101,7 +130,7 @@ function isPastSlot(date, time) {
 }
 
 function getSlotsForDate(date) {
-    return SCHEDULE_TEMPLATE[date.getDay()] || [];
+    return weeklyAvailabilityMap.get(date.getDay()) || new Set();
 }
 
 function getPlanningDays() {
@@ -161,7 +190,7 @@ function renderPlanning() {
         planningGrid.appendChild(headerCell);
     });
 
-    ALL_TIME_SLOTS.forEach((time) => {
+    doctorConfig.weeklyTimeSlots.forEach((time) => {
         const timeCell = document.createElement("div");
         timeCell.className = "matrixTimeCell";
         timeCell.textContent = time;
@@ -171,8 +200,8 @@ function renderPlanning() {
             const daySlots = getSlotsForDate(date);
             const dateKey = toDateKey(date);
             const slotKey = `${dateKey}|${time}`;
-            const isTemplateAvailable = daySlots.includes(time);
-            const isUnavailable = !isTemplateAvailable || unavailableSlots.has(slotKey) || isPastSlot(date, time);
+            const isTemplateAvailable = daySlots.has(time);
+            const isUnavailable = !planningLoaded || !isTemplateAvailable || unavailableSlots.has(slotKey) || isPastSlot(date, time);
             const isSelected = selectedSlotKey === slotKey;
             const slotCell = document.createElement("div");
             slotCell.className = "matrixSlotCell";
@@ -181,7 +210,7 @@ function renderPlanning() {
             slotButton.type = "button";
             slotButton.className = `slotButton ${isSelected ? "selected" : (isUnavailable ? "unavailable" : "available")}`;
             slotButton.disabled = isUnavailable;
-            slotButton.textContent = isTemplateAvailable ? time : "—";
+            slotButton.textContent = planningLoaded && isTemplateAvailable ? time : "—";
 
             if (!isUnavailable) {
                 slotButton.addEventListener("click", () => {
@@ -200,8 +229,12 @@ function renderPlanning() {
 
 async function loadAvailability() {
     const planningStatus = document.getElementById("planningStatus");
-    planningStatus.textContent = "Chargement du planning factice...";
+    planningStatus.textContent = "Chargement du planning du medecin...";
     unavailableSlots = new Set();
+    planningLoaded = false;
+    weeklyAvailabilityMap = createAvailabilityMapFromTemplate({});
+    selectedSlotKey = "";
+    updateSelectionSummary();
     renderPlanning();
 
     try {
@@ -228,12 +261,16 @@ async function loadAvailability() {
         unavailableSlots = new Set(unavailableSlotsData.map((slot) => {
             return `${slot.appointmentDate}|${slot.appointmentTime}`;
         }));
+        weeklyAvailabilityMap = createAvailabilityMapFromResponse(data.weeklyAvailability);
+        planningLoaded = true;
 
-        planningStatus.textContent = "Selectionnez un creneau disponible dans ce planning.";
+        planningStatus.textContent = "Selectionnez un creneau disponible dans le vrai planning du medecin.";
         renderPlanning();
     } catch (error) {
         console.error(error);
-        planningStatus.textContent = "Le planning factice est affiche, mais les reservations enregistrees ne sont pas encore chargees. Redemarrez le backend si besoin.";
+        planningLoaded = false;
+        weeklyAvailabilityMap = createAvailabilityMapFromTemplate({});
+        planningStatus.textContent = "Impossible de charger le planning reel du medecin pour le moment.";
         renderPlanning();
     }
 }

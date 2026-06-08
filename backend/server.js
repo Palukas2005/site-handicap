@@ -2,10 +2,12 @@ const express = require("express");
 const path = require("node:path");
 const cors = require("cors");
 const { pool, missingDbConfig } = require("./db");
-const { requirePageAuth } = require("./auth");
+const { requireDoctorAuth, requirePatientAuth } = require("./auth");
 const { ensureAppointmentsTable } = require("./data/appointmentsRepository");
+const { ensureDoctorAvailabilityTable } = require("./data/doctorAvailabilityRepository");
 const appointmentsRouter = require("./routes/appointments");
 const contactRouter = require("./routes/contact");
+const doctorsRouter = require("./routes/doctors");
 const usersRouter = require("./routes/users");
 
 const app = express();
@@ -25,8 +27,10 @@ app.use(cors({
 app.use(express.json());
 app.use("/api/appointments", appointmentsRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/doctors", doctorsRouter);
 app.use("/api/users", usersRouter);
-app.use(["/pageDocteur", "/pageRdv", "/pageProfil"], disableProtectedPageCache, requirePageAuth);
+app.use(["/pageDocteur", "/pageRdv", "/pageProfil"], disableProtectedPageCache, requirePatientAuth);
+app.use("/pageMedecin", disableProtectedPageCache, requireDoctorAuth);
 app.use(express.static(path.resolve(__dirname, "..")));
 
 app.get("/api/db-status", async (req, res) => {
@@ -67,6 +71,7 @@ if (require.main === module) {
         if (pool) {
             try {
                 await ensureAppointmentsTable();
+                await ensureDoctorAvailabilityTable();
                 console.log("Table appointments prête.");
             } catch (error) {
                 console.error("Impossible d'initialiser la table appointments.", error);

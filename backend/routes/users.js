@@ -81,7 +81,9 @@ router.get("/me", (req, res) => {
     return res.json({
         user: {
             id: session.id,
-            email: session.email
+            email: session.email,
+            role: session.role || "patient",
+            name: session.name || ""
         }
     });
 });
@@ -246,7 +248,11 @@ router.post("/login", async (req, res) => {
             );
         }
 
-        const sessionToken = createSession(user);
+        const sessionToken = createSession({
+            id: user.id,
+            email: user.email,
+            name: user.email
+        }, "patient");
 
         setSessionCookie(res, sessionToken);
 

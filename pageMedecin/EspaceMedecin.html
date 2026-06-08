@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Espace medecin</title>
+        <link rel="stylesheet" href="EspaceMedecin.css">
+        <script src="../shared/doctorConfig.js" defer></script>
+        <script src="../shared/auth.js" defer></script>
+        <script src="EspaceMedecin.js" defer></script>
+    </head>
+    <body data-require-auth="true" data-require-role="doctor">
+        <header>
+            <nav>
+                <div>
+                    <button class="colorGreen"><h2>HR</h2></button>
+                    <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
+                    <a href="../pageDocteur/Docteur.html"><button class="Button"><h3>Docteur</h3></button></a>
+                    <a href="../pageRdv/Rdv.html"><button class="Button"><h3>Rendez-vous</h3></button></a>
+                    <a href="../pageContact/Contact.html"><button class="Button"><h3>Contact</h3></button></a>
+                    <a href="EspaceMedecin.html"><button class="Button activeButton"><h3>Espace medecin</h3></button></a>
+                </div>
+                <div>
+                    <button class="logoutButton" data-logout-button hidden>Se deconnecter</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="doctorPage">
+            <section id="doctorStatusCard" class="doctorStatusCard">
+                Chargement de votre espace medecin...
+            </section>
+
+            <section id="doctorContent" class="doctorContent" hidden>
+                <section class="doctorHeaderCard">
+                    <p class="eyebrow">Espace professionnel</p>
+                    <h1 id="doctorDisplayName">Louis</h1>
+                    <p id="doctorHeaderMeta" class="doctorHeaderMeta"></p>
+                </section>
+
+                <section class="doctorLayout">
+                    <section class="planningCard">
+                        <div class="sectionHeader">
+                            <h2>Planning hebdomadaire</h2>
+                            <p>
+                                Cliquez sur un creneau pour choisir s'il doit
+                                rester disponible ou devenir indisponible.
+                            </p>
+                        </div>
+
+                        <div class="planningLegend">
+                            <span><i class="legendSwatch available"></i> Disponible</span>
+                            <span><i class="legendSwatch selected"></i> Selectionne</span>
+                            <span><i class="legendSwatch unavailable"></i> Indisponible</span>
+                        </div>
+
+                        <div id="planningStatus" class="planningStatus">
+                            Chargement du planning...
+                        </div>
+
+                        <div class="planningTableWrap">
+                            <div id="planningGrid" class="planningGrid"></div>
+                        </div>
+                    </section>
+
+                    <aside class="doctorSidebar">
+                        <article class="doctorCard">
+                            <h2>Profil</h2>
+                            <p class="doctorInfo">
+                                <span class="doctorInfoLabel">Nom</span>
+                                <span id="doctorFullName" class="doctorInfoValue"></span>
+                            </p>
+                            <p class="doctorInfo">
+                                <span class="doctorInfoLabel">Email</span>
+                                <span id="doctorEmail" class="doctorInfoValue"></span>
+                            </p>
+                            <p class="doctorInfo">
+                                <span class="doctorInfoLabel">Specialite</span>
+                                <span id="doctorSpecialty" class="doctorInfoValue"></span>
+                            </p>
+                            <p class="doctorInfo">
+                                <span class="doctorInfoLabel">Cabinet</span>
+                                <span id="doctorCabinet" class="doctorInfoValue"></span>
+                            </p>
+                        </article>
+
+                        <article class="doctorCard">
+                            <h2>Creneau selectionne</h2>
+                            <p class="doctorCardText">
+                                Choisissez un creneau dans le tableau pour
+                                mettre a jour votre disponibilite.
+                            </p>
+                            <p class="doctorInfo">
+                                <span class="doctorInfoLabel">Jour</span>
+                                <span id="selectedDay" class="doctorInfoValue">Aucune selection</span>
+                            </p>
+                            <p class="doctorInfo">
+                                <span class="doctorInfoLabel">Horaire</span>
+                                <span id="selectedTime" class="doctorInfoValue">Aucun horaire selectionne</span>
+                            </p>
+                            <button id="toggleAvailabilityButton" class="doctorActionButton" type="button" disabled>
+                                Selectionnez un creneau
+                            </button>
+                            <p id="slotActionStatus" class="doctorActionStatus"></p>
+                        </article>
+
+                        <article class="doctorCard">
+                            <h2>Objectifs</h2>
+                            <ul class="doctorList">
+                                <li>Mettre a jour vos disponibilites hebdomadaires.</li>
+                                <li>Garder une vue claire sur vos creneaux ouverts.</li>
+                                <li>Preparer l'ajout futur du suivi des rendez-vous recus.</li>
+                            </ul>
+                        </article>
+                    </aside>
+                </section>
+            </section>
+        </main>
+    </body>
+</html>
