@@ -1,7 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap");
+
 body{
     margin: 0;
     color: #173f32;
-    font-family: cursive;
+    font-family: "Patrick Hand", cursive;
     background:
         radial-gradient(circle at top left, rgba(79, 170, 137, 0.2), transparent 28%),
         linear-gradient(180deg, #f2fbf6 0%, #dff4eb 100%);
@@ -19,7 +21,7 @@ nav{
 button,
 input,
 textarea{
-    font-family: cursive;
+    font-family: "Patrick Hand", cursive;
 }
 button{
     cursor: pointer;

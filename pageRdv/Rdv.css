@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap");
+
 body{
     background-color: #dff4eb;
     margin: 0;
     color: #173f32;
-    font-family: cursive;
+    font-family: "Patrick Hand", cursive;
 }
 header{
     background-color: white;
@@ -21,10 +23,10 @@ div.flexRow{
 }
 h4{
     color:black;
-    font-family: "Poppins", sans-serif;
+    font-family: "Patrick Hand", cursive;
 }
 button{
-    font-family: cursive;
+    font-family: "Patrick Hand", cursive;
     cursor: pointer;
 }
 .colorGreenRdv{

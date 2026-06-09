@@ -1,7 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap");
+
 body{
     background-color: #dff4eb;
     margin: 0;
-    font-family: cursive;
+    font-family: "Patrick Hand", cursive;
 }
 header{
     background-color: white;
@@ -15,7 +17,7 @@ nav{
     align-items: center;
 }
 button{
-    font-family: cursive;
+    font-family: "Patrick Hand", cursive;
     cursor: pointer;
 }
 .colorGreen{
@@ -100,7 +102,7 @@ button{
     padding: 15px 18px;
     background-color: #f9fdfb;
     color: #173f32;
-    font-family: cursive;
+    font-family: "Patrick Hand", cursive;
     font-size: 1rem;
 }
 .searchField input:focus{
