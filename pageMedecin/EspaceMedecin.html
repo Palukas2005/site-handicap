@@ -15,10 +15,9 @@
                 <div>
                     <button class="colorGreen"><h2>HR</h2></button>
                     <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
-                    <a href="../pageDocteur/Docteur.html"><button class="Button"><h3>Docteur</h3></button></a>
-                    <a href="../pageRdv/Rdv.html"><button class="Button"><h3>Rendez-vous</h3></button></a>
+                    <a href="EspaceMedecin.html"><button class="Button activeButton"><h3>Mon planning</h3></button></a>
+                    <a href="RendezVousMedecin.html"><button class="Button"><h3>Rendez-vous patients</h3></button></a>
                     <a href="../pageContact/Contact.html"><button class="Button"><h3>Contact</h3></button></a>
-                    <a href="EspaceMedecin.html"><button class="Button activeButton"><h3>Espace medecin</h3></button></a>
                 </div>
                 <div>
                     <button class="logoutButton" data-logout-button hidden>Se deconnecter</button>
@@ -41,16 +40,19 @@
                 <section class="doctorLayout">
                     <section class="planningCard">
                         <div class="sectionHeader">
-                            <h2>Planning hebdomadaire</h2>
+                            <h2>Planning des 7 prochains jours</h2>
                             <p>
-                                Cliquez sur un creneau pour choisir s'il doit
-                                rester disponible ou devenir indisponible.
+                                Les rendez-vous patients apparaissent en rouge.
+                                Cliquez sur un creneau futur libre ou grise
+                                pour mettre a jour votre disponibilite
+                                hebdomadaire.
                             </p>
                         </div>
 
                         <div class="planningLegend">
                             <span><i class="legendSwatch available"></i> Disponible</span>
                             <span><i class="legendSwatch selected"></i> Selectionne</span>
+                            <span><i class="legendSwatch booked"></i> Reserve</span>
                             <span><i class="legendSwatch unavailable"></i> Indisponible</span>
                         </div>
 
@@ -85,23 +87,60 @@
                         </article>
 
                         <article class="doctorCard">
-                            <h2>Creneau selectionne</h2>
-                            <p class="doctorCardText">
+                            <h2 id="selectionCardTitle">Creneau selectionne</h2>
+                            <p id="selectionCardText" class="doctorCardText">
                                 Choisissez un creneau dans le tableau pour
                                 mettre a jour votre disponibilite.
                             </p>
-                            <p class="doctorInfo">
-                                <span class="doctorInfoLabel">Jour</span>
-                                <span id="selectedDay" class="doctorInfoValue">Aucune selection</span>
-                            </p>
-                            <p class="doctorInfo">
-                                <span class="doctorInfoLabel">Horaire</span>
-                                <span id="selectedTime" class="doctorInfoValue">Aucun horaire selectionne</span>
-                            </p>
-                            <button id="toggleAvailabilityButton" class="doctorActionButton" type="button" disabled>
-                                Selectionnez un creneau
-                            </button>
-                            <p id="slotActionStatus" class="doctorActionStatus"></p>
+
+                            <div id="availableSlotPanel">
+                                <p class="doctorInfo">
+                                    <span class="doctorInfoLabel">Date</span>
+                                    <span id="selectedDay" class="doctorInfoValue">Aucune selection</span>
+                                </p>
+                                <p class="doctorInfo">
+                                    <span class="doctorInfoLabel">Horaire</span>
+                                    <span id="selectedTime" class="doctorInfoValue">Aucun horaire selectionne</span>
+                                </p>
+                                <label class="doctorField" for="selectedAvailability">
+                                    <span class="doctorInfoLabel">Disponibilite</span>
+                                    <select id="selectedAvailability" class="doctorSelect" disabled>
+                                        <option value="available">Disponible</option>
+                                        <option value="unavailable">Indisponible</option>
+                                    </select>
+                                </label>
+                                <label class="doctorField" for="selectedDuration">
+                                    <span class="doctorInfoLabel">Duree du rendez-vous</span>
+                                    <select id="selectedDuration" class="doctorSelect" disabled></select>
+                                </label>
+                                <button id="toggleAvailabilityButton" class="doctorActionButton" type="button" disabled>
+                                    Selectionnez un creneau
+                                </button>
+                                <p id="slotActionStatus" class="doctorActionStatus"></p>
+                            </div>
+
+                            <div id="bookedAppointmentPanel" hidden>
+                                <p class="doctorInfo">
+                                    <span class="doctorInfoLabel">Patient</span>
+                                    <span id="bookedPatientEmail" class="doctorInfoValue">Aucun patient selectionne</span>
+                                </p>
+                                <p class="doctorInfo">
+                                    <span class="doctorInfoLabel">Date</span>
+                                    <span id="bookedAppointmentDate" class="doctorInfoValue">Aucune date selectionnee</span>
+                                </p>
+                                <p class="doctorInfo">
+                                    <span class="doctorInfoLabel">Horaire</span>
+                                    <span id="bookedAppointmentTime" class="doctorInfoValue">Aucun horaire selectionne</span>
+                                </p>
+                                <label class="doctorField" for="bookedDuration">
+                                    <span class="doctorInfoLabel">Duree du rendez-vous reserve</span>
+                                    <select id="bookedDuration" class="doctorSelect" disabled></select>
+                                </label>
+                                <button id="saveBookedDurationButton" class="doctorActionButton" type="button" disabled>
+                                    Enregistrer la duree
+                                </button>
+                                <p id="bookedAppointmentStatus" class="doctorActionStatus"></p>
+                            </div>
                         </article>
 
                         <article class="doctorCard">
@@ -109,7 +148,7 @@
                             <ul class="doctorList">
                                 <li>Mettre a jour vos disponibilites hebdomadaires.</li>
                                 <li>Garder une vue claire sur vos creneaux ouverts.</li>
-                                <li>Preparer l'ajout futur du suivi des rendez-vous recus.</li>
+                                <li>Retrouver rapidement les rendez-vous pris par vos patients.</li>
                             </ul>
                         </article>
                     </aside>

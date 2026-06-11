@@ -8,6 +8,7 @@ const {
 } = require("../auth");
 const {
     ensureDoctorAvailabilitySeed,
+    getDoctorSlotSettings,
     getDoctorWeeklyAvailability,
     updateDoctorSlotAvailability
 } = require("../data/doctorAvailabilityRepository");
@@ -104,6 +105,11 @@ function isValidDayOfWeek(value) {
 
 function isValidTimeSlot(timeSlot) {
     return doctorConfig.weeklyTimeSlots.includes(timeSlot);
+}
+
+function isValidDurationMinutes(durationMinutes) {
+    return Number.isInteger(durationMinutes)
+        && doctorConfig.appointmentDurationOptions.includes(durationMinutes);
 }
 
 router.get("/me", async (req, res) => {
@@ -347,6 +353,8 @@ router.get("/availability", async (req, res) => {
 
         return res.json({
             doctorKey,
+            appointmentDurationOptions: doctorConfig.appointmentDurationOptions,
+            defaultAppointmentDurationMinutes: doctorConfig.defaultAppointmentDurationMinutes,
             weeklyAvailability,
             weeklyDayOrder: doctorConfig.weeklyDayOrder,
             weeklyTimeSlots: doctorConfig.weeklyTimeSlots
@@ -364,6 +372,7 @@ router.put("/availability", async (req, res) => {
     const session = getDoctorSession(req);
     const dayOfWeek = Number(req.body.dayOfWeek);
     const timeSlot = getStringValue(req.body.timeSlot);
+    const requestedDurationMinutes = Number(req.body.durationMinutes);
     const isAvailable = req.body.isAvailable;
 
     if (!session) {
@@ -379,7 +388,11 @@ router.put("/availability", async (req, res) => {
         });
     }
 
-    if (!isValidDayOfWeek(dayOfWeek) || !isValidTimeSlot(timeSlot) || typeof isAvailable !== "boolean") {
+    if (
+        !isValidDayOfWeek(dayOfWeek)
+        || !isValidTimeSlot(timeSlot)
+        || typeof isAvailable !== "boolean"
+    ) {
         return res.status(400).json({
             message: "Creneau medecin invalide."
         });
@@ -387,13 +400,18 @@ router.put("/availability", async (req, res) => {
 
     try {
         const doctorKey = session.doctorKey || doctorConfig.doctorKey;
+        const currentSlotSettings = await getDoctorSlotSettings(doctorKey, dayOfWeek, timeSlot);
+        const durationMinutes = isValidDurationMinutes(requestedDurationMinutes)
+            ? requestedDurationMinutes
+            : currentSlotSettings.durationMinutes;
 
-        await updateDoctorSlotAvailability(doctorKey, dayOfWeek, timeSlot, isAvailable);
+        await updateDoctorSlotAvailability(doctorKey, dayOfWeek, timeSlot, isAvailable, durationMinutes);
 
         return res.json({
             message: "Planning medecin mis a jour.",
             slot: {
                 dayOfWeek,
+                durationMinutes,
                 isAvailable,
                 timeSlot
             }

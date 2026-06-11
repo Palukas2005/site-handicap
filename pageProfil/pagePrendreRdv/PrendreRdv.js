@@ -1,5 +1,6 @@
 const DAYS_TO_SHOW = 7;
 const doctorConfig = window.HANDIREPERE_DOCTOR_CONFIG || {
+    defaultAppointmentDurationMinutes: 60,
     weeklyAvailabilityTemplate: {
         0: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
         1: ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
@@ -15,14 +16,46 @@ const doctorConfig = window.HANDIREPERE_DOCTOR_CONFIG || {
 let doctorContext = null;
 let unavailableSlots = new Set();
 let selectedSlotKey = "";
+let slotDurationMap = createDurationMapFromTemplate(doctorConfig.weeklyAvailabilityTemplate);
 let weeklyAvailabilityMap = createAvailabilityMapFromTemplate({});
 let planningLoaded = false;
+
+function getWeeklySlotKey(dayOfWeek, timeSlot) {
+    return `${dayOfWeek}|${timeSlot}`;
+}
+
+function normalizeDurationMinutes(value) {
+    const durationMinutes = Number(value);
+
+    if (Number.isInteger(durationMinutes) && durationMinutes > 0) {
+        return durationMinutes;
+    }
+
+    return doctorConfig.defaultAppointmentDurationMinutes;
+}
 
 function createAvailabilityMapFromTemplate(template) {
     return new Map(Array.from({ length: 7 }, (_, dayOfWeek) => {
         const availableSlots = Array.isArray(template?.[dayOfWeek]) ? template[dayOfWeek] : [];
         return [dayOfWeek, new Set(availableSlots)];
     }));
+}
+
+function createDurationMapFromTemplate(template) {
+    const durationMap = new Map();
+
+    Array.from({ length: 7 }, (_, dayOfWeek) => {
+        const availableSlots = Array.isArray(template?.[dayOfWeek]) ? template[dayOfWeek] : [];
+
+        availableSlots.forEach((timeSlot) => {
+            durationMap.set(
+                getWeeklySlotKey(dayOfWeek, timeSlot),
+                doctorConfig.defaultAppointmentDurationMinutes
+            );
+        });
+    });
+
+    return durationMap;
 }
 
 function createAvailabilityMapFromResponse(weeklyAvailability) {
@@ -43,6 +76,27 @@ function createAvailabilityMapFromResponse(weeklyAvailability) {
     });
 
     return availabilityMap;
+}
+
+function createDurationMapFromResponse(weeklyAvailability) {
+    const durationMap = createDurationMapFromTemplate(doctorConfig.weeklyAvailabilityTemplate);
+
+    if (!Array.isArray(weeklyAvailability)) {
+        return durationMap;
+    }
+
+    weeklyAvailability.forEach((slot) => {
+        if (!slot) {
+            return;
+        }
+
+        durationMap.set(
+            getWeeklySlotKey(slot.dayOfWeek, slot.timeSlot),
+            normalizeDurationMinutes(slot.durationMinutes)
+        );
+    });
+
+    return durationMap;
 }
 
 function getApiBaseUrl() {
@@ -114,6 +168,23 @@ function toDateKey(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+function parseDateKey(dateKey) {
+    const [year, month, day] = dateKey.split("-").map(Number);
+
+    if (!year || !month || !day) {
+        return null;
+    }
+
+    const date = new Date(year, month - 1, day);
+
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    date.setHours(0, 0, 0, 0);
+    return date;
+}
+
 function isPastSlot(date, time) {
     const [hours, minutes] = time.split(":").map(Number);
     const slotDate = new Date(
@@ -133,6 +204,21 @@ function getSlotsForDate(date) {
     return weeklyAvailabilityMap.get(date.getDay()) || new Set();
 }
 
+function getSlotDuration(date, timeSlot) {
+    return slotDurationMap.get(getWeeklySlotKey(date.getDay(), timeSlot))
+        || doctorConfig.defaultAppointmentDurationMinutes;
+}
+
+function getSlotDurationFromDateKey(dateKey, timeSlot) {
+    const date = parseDateKey(dateKey);
+
+    if (!date) {
+        return doctorConfig.defaultAppointmentDurationMinutes;
+    }
+
+    return getSlotDuration(date, timeSlot);
+}
+
 function getPlanningDays() {
     return Array.from({ length: DAYS_TO_SHOW }, (_, index) => {
         const date = new Date();
@@ -148,6 +234,7 @@ function updateSelectionSummary() {
     if (!selectedSlotKey) {
         document.getElementById("summaryDate").textContent = "Aucune date selectionnee";
         document.getElementById("summaryTime").textContent = "Aucun horaire selectionne";
+        document.getElementById("summaryDuration").textContent = "Aucune duree selectionnee";
         document.getElementById("saveAppointmentButton").disabled = true;
         return;
     }
@@ -155,6 +242,7 @@ function updateSelectionSummary() {
     const [selectedDate, selectedTime] = selectedSlotKey.split("|");
     document.getElementById("summaryDate").textContent = formatSelectedDate(selectedDate);
     document.getElementById("summaryTime").textContent = selectedTime;
+    document.getElementById("summaryDuration").textContent = `${getSlotDurationFromDateKey(selectedDate, selectedTime)} minutes`;
     document.getElementById("saveAppointmentButton").disabled = false;
 }
 
@@ -203,6 +291,7 @@ function renderPlanning() {
             const isTemplateAvailable = daySlots.has(time);
             const isUnavailable = !planningLoaded || !isTemplateAvailable || unavailableSlots.has(slotKey) || isPastSlot(date, time);
             const isSelected = selectedSlotKey === slotKey;
+            const durationMinutes = getSlotDuration(date, time);
             const slotCell = document.createElement("div");
             slotCell.className = "matrixSlotCell";
             const slotButton = document.createElement("button");
@@ -211,6 +300,9 @@ function renderPlanning() {
             slotButton.className = `slotButton ${isSelected ? "selected" : (isUnavailable ? "unavailable" : "available")}`;
             slotButton.disabled = isUnavailable;
             slotButton.textContent = planningLoaded && isTemplateAvailable ? time : "—";
+            slotButton.title = planningLoaded && isTemplateAvailable
+                ? `${time} - ${durationMinutes} minutes`
+                : `${time} - indisponible`;
 
             if (!isUnavailable) {
                 slotButton.addEventListener("click", () => {
@@ -232,6 +324,7 @@ async function loadAvailability() {
     planningStatus.textContent = "Chargement du planning du medecin...";
     unavailableSlots = new Set();
     planningLoaded = false;
+    slotDurationMap = createDurationMapFromTemplate(doctorConfig.weeklyAvailabilityTemplate);
     weeklyAvailabilityMap = createAvailabilityMapFromTemplate({});
     selectedSlotKey = "";
     updateSelectionSummary();
@@ -261,14 +354,16 @@ async function loadAvailability() {
         unavailableSlots = new Set(unavailableSlotsData.map((slot) => {
             return `${slot.appointmentDate}|${slot.appointmentTime}`;
         }));
+        slotDurationMap = createDurationMapFromResponse(data.weeklyAvailability);
         weeklyAvailabilityMap = createAvailabilityMapFromResponse(data.weeklyAvailability);
         planningLoaded = true;
 
-        planningStatus.textContent = "Selectionnez un creneau disponible dans le vrai planning du medecin.";
+        planningStatus.textContent = "Selectionnez un creneau disponible. La duree affichee depend du reglage du medecin.";
         renderPlanning();
     } catch (error) {
         console.error(error);
         planningLoaded = false;
+        slotDurationMap = createDurationMapFromTemplate(doctorConfig.weeklyAvailabilityTemplate);
         weeklyAvailabilityMap = createAvailabilityMapFromTemplate({});
         planningStatus.textContent = "Impossible de charger le planning reel du medecin pour le moment.";
         renderPlanning();
@@ -281,6 +376,7 @@ async function saveAppointment() {
     }
 
     const [appointmentDate, appointmentTime] = selectedSlotKey.split("|");
+    const durationMinutes = getSlotDurationFromDateKey(appointmentDate, appointmentTime);
     const saveButton = document.getElementById("saveAppointmentButton");
 
     saveButton.disabled = true;
@@ -316,7 +412,7 @@ async function saveAppointment() {
         }
 
         setStatus(
-            `Rendez-vous enregistre pour le ${formatSelectedDate(appointmentDate)} a ${appointmentTime}.`,
+            `Rendez-vous enregistre pour le ${formatSelectedDate(appointmentDate)} a ${appointmentTime} pour ${data.appointment?.durationMinutes || durationMinutes} minutes.`,
             "success"
         );
 

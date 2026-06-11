@@ -104,6 +104,26 @@ button{
     margin: 0 0 12px;
     color: #1f5f4a;
 }
+.rdvEmptyNotice{
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    background-color: #edf7f2;
+    color: #1f5f4a;
+}
+.rdvEmptyNotice.success{
+    background-color: #daf4e8;
+    color: #1f7a59;
+}
+.rdvStatusCard.loading{
+    color: #54796c;
+}
+.rdvStatusCard.success{
+    color: #1f7a59;
+}
+.rdvStatusCard.error{
+    color: #a12e2e;
+}
 .rdvEmptyState p{
     margin: 0;
     color: #54796c;

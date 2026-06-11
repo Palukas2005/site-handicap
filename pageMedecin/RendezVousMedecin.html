@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rendez-vous patients</title>
+        <link rel="stylesheet" href="EspaceMedecin.css">
+        <link rel="stylesheet" href="RendezVousMedecin.css">
+        <script src="../shared/doctorConfig.js" defer></script>
+        <script src="../shared/auth.js" defer></script>
+        <script src="RendezVousMedecin.js" defer></script>
+    </head>
+    <body data-require-auth="true" data-require-role="doctor">
+        <header>
+            <nav>
+                <div>
+                    <button class="colorGreen"><h2>HR</h2></button>
+                    <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
+                    <a href="EspaceMedecin.html"><button class="Button"><h3>Mon planning</h3></button></a>
+                    <a href="RendezVousMedecin.html"><button class="Button activeButton"><h3>Rendez-vous patients</h3></button></a>
+                    <a href="../pageContact/Contact.html"><button class="Button"><h3>Contact</h3></button></a>
+                </div>
+                <div>
+                    <button class="logoutButton" data-logout-button hidden>Se deconnecter</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="doctorPage">
+            <section class="doctorHeaderCard">
+                <p class="eyebrow">Suivi patient</p>
+                <h1>Rendez-vous recus</h1>
+                <p class="doctorHeaderMeta">
+                    Cette page rassemble les creneaux deja reserves par les
+                    patients sur votre planning.
+                </p>
+            </section>
+
+            <section id="doctorAppointmentsStatus" class="doctorStatusCard">
+                Chargement des rendez-vous patients...
+            </section>
+
+            <section id="doctorAppointmentsEmptyState" class="doctorCard doctorEmptyState" hidden>
+                <h2>Aucun rendez-vous pour le moment</h2>
+                <p class="doctorCardText">
+                    Des qu'un patient reserve un creneau disponible, le rendez-vous
+                    apparaitra ici avec son email et l'horaire choisi.
+                </p>
+            </section>
+
+            <section id="doctorAppointmentsList" class="doctorAppointmentsGrid" hidden></section>
+        </main>
+    </body>
+</html>

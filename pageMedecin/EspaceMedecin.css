@@ -142,6 +142,9 @@ a{
 .legendSwatch.selected{
     background-color: #246e58;
 }
+.legendSwatch.booked{
+    background-color: #b94141;
+}
 .legendSwatch.unavailable{
     background-color: #e7ecea;
 }
@@ -187,6 +190,11 @@ a{
     color: #1f5f4a;
     font-size: 1.05rem;
 }
+.matrixHeaderCell p{
+    margin: 6px 0 0;
+    color: #54796c;
+    font-size: 0.94rem;
+}
 .matrixSlotCell{
     min-height: 64px;
 }
@@ -212,6 +220,19 @@ a{
     background-color: #246e58;
     color: white;
 }
+.slotButton.booked{
+    background-color: #b94141;
+    color: white;
+}
+.slotButton.bookedSelected{
+    background-color: #b94141;
+    color: white;
+    box-shadow: 0 0 0 3px rgba(185, 65, 65, 0.18);
+}
+.slotButton.booked:hover{
+    transform: none;
+    background-color: #b94141;
+}
 .slotButton.unavailable{
     background-color: #e7ecea;
     color: #66736f;
@@ -219,6 +240,10 @@ a{
 .slotButton.unavailable:hover{
     transform: translateY(-1px);
     background-color: #dde4e1;
+}
+.slotButton:disabled{
+    opacity: 1;
+    cursor: not-allowed;
 }
 .doctorInfo{
     margin: 18px 0 0;
@@ -235,6 +260,25 @@ a{
 .doctorInfoValue{
     color: #173f32;
     line-height: 1.7;
+}
+.doctorField{
+    display: grid;
+    gap: 8px;
+    margin-top: 18px;
+}
+.doctorSelect{
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(36, 110, 88, 0.16);
+    background-color: #f9fdfb;
+    color: #173f32;
+    font-family: "Patrick Hand", cursive;
+    font-size: 1rem;
+}
+.doctorSelect:disabled{
+    background-color: #eef3f1;
+    color: #7b8b86;
+    cursor: not-allowed;
 }
 .doctorActionButton{
     width: 100%;
@@ -294,5 +338,9 @@ a{
     .planningCard,
     .doctorCard{
         padding: 24px;
+    }
+
+    .doctorSelect{
+        width: 100%;
     }
 }

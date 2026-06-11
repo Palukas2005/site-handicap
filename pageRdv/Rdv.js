@@ -2,6 +2,13 @@ function getApiBaseUrl() {
     return window.location.protocol === "file:" ? "http://localhost:3000" : "";
 }
 
+let currentAppointments = [];
+
+function normalizeAppointmentId(value) {
+    const appointmentId = Number(value);
+    return Number.isInteger(appointmentId) ? appointmentId : 0;
+}
+
 function formatAppointmentDate(dateString) {
     const [year, month, day] = dateString.split("-").map(Number);
     return new Intl.DateTimeFormat("fr-FR", {
@@ -31,6 +38,13 @@ function buildInfoRow(label, value, href = "") {
     `;
 }
 
+function formatDuration(durationMinutes) {
+    const normalizedDuration = Number(durationMinutes);
+    return Number.isInteger(normalizedDuration) && normalizedDuration > 0
+        ? `${normalizedDuration} minutes`
+        : "Information non renseignee";
+}
+
 function parseApiResponse(responseText, fallbackMessage = "") {
     if (!responseText) {
         return fallbackMessage ? { message: fallbackMessage } : {};
@@ -50,10 +64,75 @@ function parseApiResponse(responseText, fallbackMessage = "") {
     }
 }
 
-function setStatusCardMessage(message) {
+function setStatusCardMessage(message, type = "") {
     const statusCard = document.getElementById("rdvStatusCard");
-    statusCard.hidden = false;
+    statusCard.hidden = !message;
     statusCard.textContent = message;
+    statusCard.className = type ? `rdvStatusCard ${type}` : "rdvStatusCard";
+}
+
+function setEmptyStateNotice(message = "", type = "") {
+    const emptyNotice = document.getElementById("rdvEmptyNotice");
+    emptyNotice.hidden = !message;
+    emptyNotice.textContent = message;
+    emptyNotice.className = type ? `rdvEmptyNotice ${type}` : "rdvEmptyNotice";
+}
+
+function updateAppointmentsView({
+    emptyStateNotice = "",
+    emptyStateNoticeType = "",
+    statusMessage = "",
+    statusType = ""
+} = {}) {
+    const emptyState = document.getElementById("rdvEmptyState");
+    const rdvList = document.getElementById("rdvList");
+
+    if (currentAppointments.length === 0) {
+        setEmptyStateNotice(emptyStateNotice, emptyStateNoticeType);
+        setStatusCardMessage("");
+        emptyState.hidden = false;
+        rdvList.hidden = true;
+        return;
+    }
+
+    setEmptyStateNotice("");
+    renderAppointments(currentAppointments);
+
+    if (statusMessage) {
+        setStatusCardMessage(statusMessage, statusType);
+    } else {
+        setStatusCardMessage("");
+    }
+
+    rdvList.hidden = false;
+    emptyState.hidden = true;
+}
+
+function removeAppointmentFromView(appointmentId, button) {
+    const emptyState = document.getElementById("rdvEmptyState");
+    const rdvList = document.getElementById("rdvList");
+    const appointmentCard = button.closest(".rdvCard");
+
+    currentAppointments = currentAppointments.filter((appointment) => {
+        return normalizeAppointmentId(appointment.id) !== appointmentId;
+    });
+
+    if (appointmentCard) {
+        appointmentCard.remove();
+    }
+
+    if (currentAppointments.length === 0) {
+        updateAppointmentsView({
+            emptyStateNotice: "Le rendez-vous a bien ete supprime.",
+            emptyStateNoticeType: "success"
+        });
+        return;
+    }
+
+    setEmptyStateNotice("");
+    setStatusCardMessage("Rendez-vous supprime avec succes.", "success");
+    rdvList.hidden = false;
+    emptyState.hidden = true;
 }
 
 function renderAppointments(appointments) {
@@ -79,6 +158,7 @@ function renderAppointments(appointments) {
                 <div class="rdvDetails">
                     ${buildInfoRow("Date", formatAppointmentDate(appointment.appointmentDate))}
                     ${buildInfoRow("Heure", appointment.appointmentTime)}
+                    ${buildInfoRow("Duree", formatDuration(appointment.durationMinutes))}
                     ${buildInfoRow("Cabinet", appointment.doctorCabinet || "Information non renseignee")}
                     ${buildInfoRow("Localisation", doctorLocation || "Information non renseignee")}
                     ${buildInfoRow(
@@ -99,7 +179,7 @@ function renderAppointments(appointments) {
 
     rdvList.querySelectorAll("[data-delete-appointment]").forEach((button) => {
         button.addEventListener("click", async () => {
-            const appointmentId = Number(button.dataset.deleteAppointment);
+            const appointmentId = normalizeAppointmentId(button.dataset.deleteAppointment);
 
             if (!Number.isInteger(appointmentId) || appointmentId <= 0) {
                 return;
@@ -136,29 +216,40 @@ async function deleteAppointment(appointmentId, button) {
             throw new Error(data.message || "Impossible de supprimer ce rendez-vous.");
         }
 
-        await loadAppointments("Rendez-vous supprime avec succes.");
+        removeAppointmentFromView(appointmentId, button);
     } catch (error) {
         console.error(error);
-        setStatusCardMessage(error.message || "Impossible de supprimer ce rendez-vous.");
+        setStatusCardMessage(
+            error.message || "Impossible de supprimer ce rendez-vous.",
+            "error"
+        );
         button.disabled = false;
         button.textContent = originalText;
     }
 }
 
-async function loadAppointments(statusMessage = "") {
+async function loadAppointments({
+    emptyStateNotice = "",
+    emptyStateNoticeType = "",
+    showLoadingState = true,
+    statusMessage = "",
+    statusType = ""
+} = {}) {
     const statusCard = document.getElementById("rdvStatusCard");
     const emptyState = document.getElementById("rdvEmptyState");
     const rdvList = document.getElementById("rdvList");
 
-    statusCard.hidden = false;
-    emptyState.hidden = true;
-    rdvList.hidden = true;
-    statusCard.textContent = "Chargement de vos rendez-vous...";
+    if (showLoadingState) {
+        setStatusCardMessage("Chargement de vos rendez-vous...", "loading");
+        emptyState.hidden = true;
+        rdvList.hidden = true;
+    }
 
     try {
         const response = await fetch(`${getApiBaseUrl()}/api/appointments/mine`, {
             method: "GET",
-            credentials: "include"
+            credentials: "include",
+            cache: "no-store"
         });
 
         const responseText = await response.text();
@@ -171,26 +262,27 @@ async function loadAppointments(statusMessage = "") {
             throw new Error(data.message || "Impossible de charger vos rendez-vous.");
         }
 
-        if (!data.appointments || data.appointments.length === 0) {
-            if (statusMessage) {
-                statusCard.textContent = statusMessage;
-            } else {
-                statusCard.hidden = true;
-            }
-            emptyState.hidden = false;
-            return;
-        }
-
-        renderAppointments(data.appointments);
-        if (statusMessage) {
-            statusCard.textContent = statusMessage;
-        } else {
-            statusCard.hidden = true;
-        }
-        rdvList.hidden = false;
+        currentAppointments = Array.isArray(data.appointments)
+            ? data.appointments.map((appointment) => {
+                return {
+                    ...appointment,
+                    id: normalizeAppointmentId(appointment.id)
+                };
+            })
+            : [];
+        updateAppointmentsView({
+            emptyStateNotice,
+            emptyStateNoticeType,
+            statusMessage,
+            statusType
+        });
     } catch (error) {
         console.error(error);
-        statusCard.textContent = error.message || "Impossible de charger vos rendez-vous. Redemarrez le backend pour activer l'API des rendez-vous.";
+        setEmptyStateNotice("");
+        setStatusCardMessage(
+            error.message || "Impossible de charger vos rendez-vous. Redemarrez le backend pour activer l'API des rendez-vous.",
+            "error"
+        );
     }
 }
 

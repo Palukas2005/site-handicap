@@ -11,6 +11,7 @@ function getDefaultAvailabilityEntries(doctorKey) {
             return {
                 doctorKey,
                 dayOfWeek,
+                durationMinutes: doctorConfig.defaultAppointmentDurationMinutes,
                 isAvailable: true,
                 timeSlot
             };
@@ -31,11 +32,25 @@ async function ensureDoctorAvailabilityTable() {
                     doctor_key VARCHAR(255) NOT NULL,
                     day_of_week INTEGER NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
                     time_slot TIME NOT NULL,
+                    duration_minutes INTEGER NOT NULL DEFAULT 60,
                     is_available BOOLEAN NOT NULL DEFAULT TRUE,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE (doctor_key, day_of_week, time_slot)
                 )
             `);
+
+            await pool.query(`
+                ALTER TABLE doctor_availability
+                ADD COLUMN IF NOT EXISTS duration_minutes INTEGER NOT NULL DEFAULT 60
+            `);
+
+            await pool.query(`
+                UPDATE doctor_availability
+                SET duration_minutes = $1
+                WHERE duration_minutes IS NULL OR duration_minutes <= 0
+            `, [
+                doctorConfig.defaultAppointmentDurationMinutes
+            ]);
         })().catch((error) => {
             doctorAvailabilityTablePromise = undefined;
             throw error;
@@ -59,8 +74,8 @@ async function ensureDoctorAvailabilitySeed(doctorKey) {
     }
 
     const placeholders = entries.map((entry, index) => {
-        const startIndex = index * 4;
-        return `($${startIndex + 1}, $${startIndex + 2}, $${startIndex + 3}, $${startIndex + 4})`;
+        const startIndex = index * 5;
+        return `($${startIndex + 1}, $${startIndex + 2}, $${startIndex + 3}, $${startIndex + 4}, $${startIndex + 5})`;
     }).join(", ");
 
     const values = entries.flatMap((entry) => {
@@ -68,6 +83,7 @@ async function ensureDoctorAvailabilitySeed(doctorKey) {
             entry.doctorKey,
             entry.dayOfWeek,
             `${entry.timeSlot}:00`,
+            entry.durationMinutes,
             entry.isAvailable
         ];
     });
@@ -78,6 +94,7 @@ async function ensureDoctorAvailabilitySeed(doctorKey) {
                 doctor_key,
                 day_of_week,
                 time_slot,
+                duration_minutes,
                 is_available
             )
             VALUES ${placeholders}
@@ -99,6 +116,7 @@ async function getDoctorWeeklyAvailability(doctorKey) {
             SELECT
                 day_of_week,
                 TO_CHAR(time_slot, 'HH24:MI') AS time_slot,
+                duration_minutes,
                 is_available
             FROM doctor_availability
             WHERE doctor_key = $1
@@ -110,22 +128,26 @@ async function getDoctorWeeklyAvailability(doctorKey) {
     return result.rows.map((row) => {
         return {
             dayOfWeek: row.day_of_week,
+            durationMinutes: row.duration_minutes,
             isAvailable: row.is_available,
             timeSlot: row.time_slot
         };
     });
 }
 
-async function isDoctorSlotAvailable(doctorKey, dayOfWeek, timeSlot) {
+async function getDoctorSlotSettings(doctorKey, dayOfWeek, timeSlot) {
     if (!pool || !doctorKey) {
-        return false;
+        return {
+            durationMinutes: doctorConfig.defaultAppointmentDurationMinutes,
+            isAvailable: false
+        };
     }
 
     await ensureDoctorAvailabilitySeed(doctorKey);
 
     const result = await pool.query(
         `
-            SELECT is_available
+            SELECT is_available, duration_minutes
             FROM doctor_availability
             WHERE doctor_key = $1
             AND day_of_week = $2
@@ -134,10 +156,25 @@ async function isDoctorSlotAvailable(doctorKey, dayOfWeek, timeSlot) {
         [doctorKey, dayOfWeek, `${timeSlot}:00`]
     );
 
-    return result.rowCount > 0 && result.rows[0].is_available === true;
+    if (result.rowCount === 0) {
+        return {
+            durationMinutes: doctorConfig.defaultAppointmentDurationMinutes,
+            isAvailable: false
+        };
+    }
+
+    return {
+        durationMinutes: result.rows[0].duration_minutes || doctorConfig.defaultAppointmentDurationMinutes,
+        isAvailable: result.rows[0].is_available === true
+    };
 }
 
-async function updateDoctorSlotAvailability(doctorKey, dayOfWeek, timeSlot, isAvailable) {
+async function isDoctorSlotAvailable(doctorKey, dayOfWeek, timeSlot) {
+    const slotSettings = await getDoctorSlotSettings(doctorKey, dayOfWeek, timeSlot);
+    return slotSettings.isAvailable === true;
+}
+
+async function updateDoctorSlotAvailability(doctorKey, dayOfWeek, timeSlot, isAvailable, durationMinutes) {
     if (!pool || !doctorKey) {
         return;
     }
@@ -150,22 +187,31 @@ async function updateDoctorSlotAvailability(doctorKey, dayOfWeek, timeSlot, isAv
                 doctor_key,
                 day_of_week,
                 time_slot,
+                duration_minutes,
                 is_available,
                 updated_at
             )
-            VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
             ON CONFLICT (doctor_key, day_of_week, time_slot)
             DO UPDATE SET
+                duration_minutes = EXCLUDED.duration_minutes,
                 is_available = EXCLUDED.is_available,
                 updated_at = CURRENT_TIMESTAMP
         `,
-        [doctorKey, dayOfWeek, `${timeSlot}:00`, isAvailable]
+        [
+            doctorKey,
+            dayOfWeek,
+            `${timeSlot}:00`,
+            durationMinutes || doctorConfig.defaultAppointmentDurationMinutes,
+            isAvailable
+        ]
     );
 }
 
 module.exports = {
     ensureDoctorAvailabilitySeed,
     ensureDoctorAvailabilityTable,
+    getDoctorSlotSettings,
     getDoctorWeeklyAvailability,
     isDoctorSlotAvailable,
     updateDoctorSlotAvailability

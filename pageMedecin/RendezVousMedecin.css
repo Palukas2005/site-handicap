@@ -1,0 +1,145 @@
+.doctorAppointmentsGrid{
+    display: grid;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.doctorAppointmentCard{
+    padding: 28px;
+    border-radius: 28px;
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
+    border: 1px solid rgba(36, 110, 88, 0.08);
+}
+
+.doctorAppointmentHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.doctorAppointmentHeader h2{
+    margin: 0;
+    color: #1f5f4a;
+    font-size: 1.45rem;
+}
+
+.appointmentBadge{
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    background-color: #daf4e8;
+    color: #1f5f4a;
+}
+
+.appointmentBadge.past{
+    background-color: #e7ecea;
+    color: #66736f;
+}
+
+.doctorAppointmentGrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.appointmentInfo{
+    margin: 0;
+    padding: 18px 20px;
+    border-radius: 22px;
+    background-color: #f7fcf9;
+    border: 1px solid rgba(36, 110, 88, 0.08);
+}
+
+.appointmentInfoLabel{
+    display: block;
+    margin-bottom: 6px;
+    color: #54796c;
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.appointmentInfoValue{
+    color: #1f5f4a;
+    font-size: 1.1rem;
+    word-break: break-word;
+}
+
+.appointmentDurationForm{
+    display: grid;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(36, 110, 88, 0.12);
+}
+
+.appointmentDurationLabel{
+    display: grid;
+    gap: 8px;
+    color: #54796c;
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.appointmentDurationSelect{
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(36, 110, 88, 0.16);
+    background-color: #f9fdfb;
+    color: #173f32;
+    font-family: "Patrick Hand", cursive;
+    font-size: 1rem;
+}
+
+.appointmentDurationActions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.appointmentDurationButton{
+    padding: 14px 20px;
+    border-radius: 999px;
+    border: none;
+    background-color: #246e58;
+    color: white;
+    box-shadow: 0 14px 28px rgba(36, 110, 88, 0.18);
+}
+
+.appointmentDurationButton:disabled{
+    background-color: #8fb9ab;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.appointmentDurationStatus{
+    min-height: 24px;
+    color: #54796c;
+    line-height: 1.5;
+}
+
+.appointmentDurationStatus.success{
+    color: #1f7a59;
+}
+
+.appointmentDurationStatus.error{
+    color: #a12e2e;
+}
+
+.doctorEmptyState{
+    margin-top: 24px;
+}
+
+@media (max-width: 760px){
+    .doctorAppointmentCard{
+        padding: 22px;
+    }
+}

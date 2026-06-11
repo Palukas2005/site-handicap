@@ -2,9 +2,10 @@ const express = require("express");
 const doctorConfig = require("../../shared/doctorConfig");
 const { getSession } = require("../auth");
 const {
-    getDoctorWeeklyAvailability,
-    isDoctorSlotAvailable
+    getDoctorSlotSettings,
+    getDoctorWeeklyAvailability
 } = require("../data/doctorAvailabilityRepository");
+const { ensureUsersTable } = require("../data/usersRepository");
 const { pool, missingDbConfig } = require("../db");
 const { ensureAppointmentsTable } = require("../data/appointmentsRepository");
 
@@ -17,12 +18,27 @@ function getAuthenticatedSession(req) {
     return getSession(req);
 }
 
+function getAuthenticatedDoctorSession(req) {
+    const session = getAuthenticatedSession(req);
+
+    if (!session || session.role !== "doctor") {
+        return null;
+    }
+
+    return session;
+}
+
 function normalizeDoctorKey(doctorKey) {
     return typeof doctorKey === "string" ? doctorKey.trim().toLowerCase() : "";
 }
 
 function getStringValue(value) {
     return typeof value === "string" ? value.trim() : "";
+}
+
+function isValidDurationMinutes(durationMinutes) {
+    return Number.isInteger(durationMinutes)
+        && doctorConfig.appointmentDurationOptions.includes(durationMinutes);
 }
 
 function getAppointmentDayOfWeek(dateString) {
@@ -121,6 +137,7 @@ router.get("/mine", async (req, res) => {
                     doctor_cabinet,
                     doctor_city,
                     doctor_region,
+                    duration_minutes,
                     appointment_date::text AS appointment_date,
                     TO_CHAR(appointment_time, 'HH24:MI') AS appointment_time,
                     created_at
@@ -140,6 +157,7 @@ router.get("/mine", async (req, res) => {
                     doctorCabinet: row.doctor_cabinet,
                     doctorCity: row.doctor_city,
                     doctorRegion: row.doctor_region,
+                    durationMinutes: row.duration_minutes,
                     appointmentDate: row.appointment_date,
                     appointmentTime: row.appointment_time,
                     createdAt: row.created_at
@@ -151,6 +169,134 @@ router.get("/mine", async (req, res) => {
 
         return res.status(500).json({
             message: "Impossible de charger les rendez-vous pour le moment."
+        });
+    }
+});
+
+router.get("/doctor", async (req, res) => {
+    const session = getAuthenticatedDoctorSession(req);
+
+    if (!session) {
+        return res.status(401).json({
+            message: "Non authentifie."
+        });
+    }
+
+    if (!pool) {
+        return res.status(503).json({
+            message: "Configuration PostgreSQL incomplète. Renseignez backend/.env avant d'utiliser l'authentification.",
+            missing: missingDbConfig
+        });
+    }
+
+    try {
+        await ensureUsersTable();
+        await ensureAppointmentsTable();
+
+        const doctorKey = normalizeDoctorKey(session.doctorKey || doctorConfig.doctorKey);
+
+        const result = await pool.query(
+            `
+                SELECT
+                    appointments.id,
+                    users.email AS patient_email,
+                    appointments.duration_minutes,
+                    appointments.appointment_date::text AS appointment_date,
+                    TO_CHAR(appointments.appointment_time, 'HH24:MI') AS appointment_time,
+                    appointments.created_at
+                FROM appointments
+                LEFT JOIN users
+                    ON users.id = appointments.user_id
+                WHERE appointments.doctor_key = $1
+                ORDER BY appointments.appointment_date ASC, appointments.appointment_time ASC
+            `,
+            [doctorKey]
+        );
+
+        return res.json({
+            appointments: result.rows.map((row) => {
+                return {
+                    id: row.id,
+                    durationMinutes: row.duration_minutes,
+                    patientEmail: row.patient_email || "Patient non renseigne",
+                    appointmentDate: row.appointment_date,
+                    appointmentTime: row.appointment_time,
+                    createdAt: row.created_at
+                };
+            })
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Impossible de charger les rendez-vous du medecin pour le moment."
+        });
+    }
+});
+
+router.put("/doctor/:appointmentId/duration", async (req, res) => {
+    const session = getAuthenticatedDoctorSession(req);
+    const appointmentId = Number(req.params.appointmentId);
+    const durationMinutes = Number(req.body.durationMinutes);
+
+    if (!session) {
+        return res.status(401).json({
+            message: "Non authentifie."
+        });
+    }
+
+    if (!pool) {
+        return res.status(503).json({
+            message: "Configuration PostgreSQL incomplète. Renseignez backend/.env avant d'utiliser l'authentification.",
+            missing: missingDbConfig
+        });
+    }
+
+    if (!Number.isInteger(appointmentId) || appointmentId <= 0 || !isValidDurationMinutes(durationMinutes)) {
+        return res.status(400).json({
+            message: "Rendez-vous medecin invalide."
+        });
+    }
+
+    try {
+        await ensureAppointmentsTable();
+
+        const doctorKey = normalizeDoctorKey(session.doctorKey || doctorConfig.doctorKey);
+        const result = await pool.query(
+            `
+                UPDATE appointments
+                SET duration_minutes = $1
+                WHERE id = $2
+                AND doctor_key = $3
+                RETURNING
+                    id,
+                    duration_minutes,
+                    appointment_date::text AS appointment_date,
+                    TO_CHAR(appointment_time, 'HH24:MI') AS appointment_time
+            `,
+            [durationMinutes, appointmentId, doctorKey]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                message: "Rendez-vous introuvable."
+            });
+        }
+
+        return res.json({
+            message: "Duree du rendez-vous mise a jour.",
+            appointment: {
+                id: result.rows[0].id,
+                durationMinutes: result.rows[0].duration_minutes,
+                appointmentDate: result.rows[0].appointment_date,
+                appointmentTime: result.rows[0].appointment_time
+            }
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Impossible de modifier la duree de ce rendez-vous pour le moment."
         });
     }
 });
@@ -256,13 +402,13 @@ router.post("/", async (req, res) => {
             });
         }
 
-        const slotIsAvailable = await isDoctorSlotAvailable(
+        const slotSettings = await getDoctorSlotSettings(
             doctorKey,
             appointmentDayOfWeek,
             appointmentTime
         );
 
-        if (!slotIsAvailable) {
+        if (!slotSettings.isAvailable) {
             return res.status(409).json({
                 message: "Ce creneau n'est pas disponible dans le planning du medecin."
             });
@@ -278,13 +424,15 @@ router.post("/", async (req, res) => {
                     doctor_cabinet,
                     doctor_city,
                     doctor_region,
+                    duration_minutes,
                     appointment_date,
                     appointment_time
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 RETURNING
                     id,
                     doctor_name,
+                    duration_minutes,
                     appointment_date::text AS appointment_date,
                     TO_CHAR(appointment_time, 'HH24:MI') AS appointment_time
             `,
@@ -296,6 +444,7 @@ router.post("/", async (req, res) => {
                 doctorCabinet || null,
                 doctorCity || null,
                 doctorRegion || null,
+                slotSettings.durationMinutes,
                 appointmentDate,
                 `${appointmentTime}:00`
             ]
@@ -306,6 +455,7 @@ router.post("/", async (req, res) => {
             appointment: {
                 id: result.rows[0].id,
                 doctorName: result.rows[0].doctor_name,
+                durationMinutes: result.rows[0].duration_minutes,
                 appointmentDate: result.rows[0].appointment_date,
                 appointmentTime: result.rows[0].appointment_time
             }
