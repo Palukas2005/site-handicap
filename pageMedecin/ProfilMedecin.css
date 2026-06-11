@@ -5,8 +5,9 @@ body{
     color: #173f32;
     font-family: "Patrick Hand", cursive;
     background:
-        radial-gradient(circle at top left, rgba(79, 170, 137, 0.2), transparent 28%),
-        linear-gradient(180deg, #f2fbf6 0%, #dff4eb 100%);
+        radial-gradient(circle at top left, rgba(79, 170, 137, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(36, 110, 88, 0.16), transparent 26%),
+        linear-gradient(180deg, #f5fcf8 0%, #dff4eb 100%);
 }
 header{
     background-color: rgba(255, 255, 255, 0.96);
@@ -18,16 +19,9 @@ nav{
     justify-content: space-between;
     align-items: center;
 }
-button,
-input,
-textarea{
-    font-family: "Patrick Hand", cursive;
-}
 button{
+    font-family: "Patrick Hand", cursive;
     cursor: pointer;
-}
-button:disabled{
-    cursor: not-allowed;
 }
 a{
     color: inherit;
@@ -60,16 +54,31 @@ a{
     color: white;
     padding: 14px 20px;
 }
-.contactPage{
-    max-width: 1120px;
+.profilePage{
+    max-width: 1180px;
     margin: 0 auto;
     padding: 48px 24px 72px;
 }
-.contactHero{
+.profileStatusCard,
+.profileHero,
+.infoCard{
+    border-radius: 28px;
+    background-color: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
+    border: 1px solid rgba(36, 110, 88, 0.08);
+}
+.profileStatusCard{
+    padding: 28px;
+    line-height: 1.6;
+}
+.profileContent{
+    display: grid;
+    gap: 26px;
+}
+.profileHero{
     padding: 34px;
-    border-radius: 30px;
     background:
-        linear-gradient(145deg, rgba(36, 110, 88, 0.96), rgba(63, 150, 118, 0.9)),
+        linear-gradient(145deg, rgba(36, 110, 88, 0.98), rgba(51, 135, 106, 0.9)),
         #246e58;
     color: white;
     box-shadow: 0 24px 46px rgba(36, 110, 88, 0.22);
@@ -80,136 +89,128 @@ a{
     text-transform: uppercase;
     font-size: 0.88rem;
 }
-.contactHero h1{
-    margin: 0 0 12px;
+.profileHero h1{
+    margin: 0;
     font-size: clamp(2rem, 4vw, 3rem);
     line-height: 1.05;
 }
-.heroText{
-    margin: 0;
+.profileLead{
+    margin: 14px 0 0;
     max-width: 760px;
     color: rgba(255, 255, 255, 0.92);
     line-height: 1.7;
     font-size: 1.08rem;
 }
-.contactGrid{
-    margin-top: 26px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 22px;
-}
-.infoCard,
-.contactFormSection{
-    padding: 28px;
-    border-radius: 28px;
-    background-color: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 20px 38px rgba(36, 110, 88, 0.1);
-    border: 1px solid rgba(36, 110, 88, 0.08);
-}
-.infoCard h2,
-.sectionHeader h2{
-    margin: 0 0 14px;
-    color: #1f5f4a;
-}
-.infoRow{
-    margin: 0;
+.heroMeta{
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
 }
-.infoRow + .infoRow{
-    margin-top: 14px;
+.heroPill{
+    padding: 10px 16px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.14);
 }
-.infoLabel{
-    color: #54796c;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.profileGrid{
+    display: grid;
+    max-width: 620px;
+    margin: 0 auto;
 }
-.infoLink{
+.infoCard{
+    padding: 26px;
+}
+.infoCard h2{
+    margin: 0 0 18px;
     color: #1f5f4a;
-    text-decoration: none;
-    word-break: break-word;
+    font-size: 1.4rem;
 }
-.infoLink:hover{
-    text-decoration: underline;
+.profileForm{
+    display: grid;
+    gap: 20px;
 }
-.infoText,
-.sectionHeader p,
-.contactStatus{
-    margin: 0;
-    line-height: 1.7;
-    color: #54796c;
-}
-.infoText + .infoText{
-    margin-top: 12px;
-}
-.contactFormSection{
-    margin-top: 26px;
-}
-.contactForm{
-    margin-top: 22px;
+.fieldGrid{
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    gap: 16px;
 }
 .field{
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 8px;
 }
-.field span{
+.fieldLarge{
+    grid-column: 1 / -1;
+}
+.field span,
+.settingsSection h3{
     color: #1f5f4a;
 }
-.field input,
-.field textarea{
+.field input{
     border-radius: 18px;
     border: 1px solid rgba(36, 110, 88, 0.16);
     background-color: #f9fdfb;
     padding: 16px 18px;
     color: #173f32;
     font-size: 1rem;
-    resize: vertical;
+    font-family: "Patrick Hand", cursive;
 }
-.field input:focus,
-.field textarea:focus{
-    outline: 2px solid rgba(36, 110, 88, 0.2);
+.field input[readonly]{
+    background-color: #eef3f1;
+    color: #54796c;
+}
+.field input:focus{
+    outline: 2px solid rgba(36, 110, 88, 0.18);
     border-color: #246e58;
 }
-.fieldLarge{
-    grid-column: 1 / -1;
+.settingsSection{
+    display: grid;
+    gap: 14px;
+    padding-top: 6px;
 }
-.formActions{
-    grid-column: 1 / -1;
+.settingsSection h3{
+    margin: 0;
+    font-size: 1.15rem;
+}
+.checkboxField{
     display: flex;
     align-items: center;
+    gap: 12px;
+    color: #173f32;
+    line-height: 1.5;
 }
-.submitButton{
+.checkboxField input{
+    width: 18px;
+    height: 18px;
+}
+.formActions{
+    display: flex;
+}
+.saveButton{
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 14px 22px;
+    padding: 15px 24px;
     border-radius: 999px;
     border: none;
-}
-.submitButton{
     background-color: #246e58;
     color: white;
-    box-shadow: 0 14px 28px rgba(36, 110, 88, 0.2);
+    box-shadow: 0 16px 28px rgba(36, 110, 88, 0.18);
 }
-.submitButton:disabled{
+.saveButton:disabled{
     opacity: 0.72;
     cursor: not-allowed;
     box-shadow: none;
 }
-.contactStatus{
-    grid-column: 1 / -1;
+.formStatus{
     min-height: 24px;
+    margin: 0;
+    line-height: 1.6;
+    color: #54796c;
 }
-.contactStatus.success{
+.formStatus.success{
     color: #1f7a59;
 }
-.contactStatus.error{
+.formStatus.error{
     color: #a12e2e;
 }
 
@@ -220,17 +221,17 @@ a{
         flex-direction: column;
     }
 
-    .contactPage{
+    .profilePage{
         padding: 32px 18px 52px;
     }
 
-    .contactHero,
-    .infoCard,
-    .contactFormSection{
+    .profileStatusCard,
+    .profileHero,
+    .infoCard{
         padding: 24px;
     }
 
-    .contactForm{
+    .fieldGrid{
         grid-template-columns: 1fr;
     }
 }

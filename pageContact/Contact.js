@@ -21,12 +21,24 @@ function parseApiResponse(responseText) {
     }
 }
 
+function getGuestNavigationMarkup() {
+    return `
+        <button class="colorGreen"><h2>HR</h2></button>
+        <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
+        <a href="../pageDocteur/Docteur.html"><button class="Button"><h3>Docteur</h3></button></a>
+        <a href="../pageRdv/Rdv.html"><button class="Button"><h3>Rendez-vous</h3></button></a>
+        <button class="Button" type="button" disabled><h3>Mon profil</h3></button>
+        <a href="Contact.html"><button class="Button activeButton"><h3>Contact</h3></button></a>
+    `;
+}
+
 function getPatientNavigationMarkup() {
     return `
         <button class="colorGreen"><h2>HR</h2></button>
         <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
         <a href="../pageDocteur/Docteur.html"><button class="Button"><h3>Docteur</h3></button></a>
         <a href="../pageRdv/Rdv.html"><button class="Button"><h3>Rendez-vous</h3></button></a>
+        <a href="../pageProfil/ProfilPatient.html"><button class="Button"><h3>Mon profil</h3></button></a>
         <a href="Contact.html"><button class="Button activeButton"><h3>Contact</h3></button></a>
     `;
 }
@@ -37,6 +49,7 @@ function getDoctorNavigationMarkup() {
         <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
         <a href="../pageMedecin/EspaceMedecin.html"><button class="Button"><h3>Mon planning</h3></button></a>
         <a href="../pageMedecin/RendezVousMedecin.html"><button class="Button"><h3>Rendez-vous patients</h3></button></a>
+        <a href="../pageMedecin/ProfilMedecin.html"><button class="Button"><h3>Mon profil</h3></button></a>
         <a href="Contact.html"><button class="Button activeButton"><h3>Contact</h3></button></a>
     `;
 }
@@ -55,7 +68,12 @@ async function adaptNavigationToSession() {
 
     const sessionUser = await getSessionUser();
 
-    roleNavigation.innerHTML = sessionUser?.role === "doctor"
+    if (!sessionUser) {
+        roleNavigation.innerHTML = getGuestNavigationMarkup();
+        return;
+    }
+
+    roleNavigation.innerHTML = sessionUser.role === "doctor"
         ? getDoctorNavigationMarkup()
         : getPatientNavigationMarkup();
 }

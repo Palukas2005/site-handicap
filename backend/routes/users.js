@@ -17,7 +17,45 @@ function getNormalizedEmail(email) {
     return typeof email === "string" ? email.trim().toLowerCase() : "";
 }
 
-router.get("/me", (req, res) => {
+function getStringValue(value) {
+    return typeof value === "string" ? value.trim() : "";
+}
+
+function hasOwn(body, key) {
+    return Object.prototype.hasOwnProperty.call(body, key);
+}
+
+function buildDisplayName(firstName, lastName, fallback = "") {
+    const fullName = [firstName, lastName]
+        .map((value) => getStringValue(value))
+        .filter(Boolean)
+        .join(" ");
+
+    return fullName || fallback;
+}
+
+function buildSessionUserResponse(session, userOverrides = {}) {
+    const firstName = getStringValue(userOverrides.firstName);
+    const lastName = getStringValue(userOverrides.lastName);
+    const fallbackName = getStringValue(userOverrides.name || session.name || session.email);
+
+    return {
+        id: session.id,
+        email: userOverrides.email || session.email,
+        role: userOverrides.role || session.role || "patient",
+        name: buildDisplayName(firstName, lastName, fallbackName),
+        firstName,
+        lastName,
+        emailNotificationsEnabled: typeof userOverrides.emailNotificationsEnabled === "boolean"
+            ? userOverrides.emailNotificationsEnabled
+            : true,
+        appointmentRemindersEnabled: typeof userOverrides.appointmentRemindersEnabled === "boolean"
+            ? userOverrides.appointmentRemindersEnabled
+            : true
+    };
+}
+
+router.get("/me", async (req, res) => {
     const session = getSession(req);
 
     if (!session) {
@@ -26,14 +64,163 @@ router.get("/me", (req, res) => {
         });
     }
 
-    return res.json({
-        user: {
-            id: session.id,
-            email: session.email,
-            role: session.role || "patient",
-            name: session.name || ""
+    if (session.role === "doctor" || !pool) {
+        return res.json({
+            user: buildSessionUserResponse(session)
+        });
+    }
+
+    try {
+        await ensureUsersTable();
+
+        const result = await pool.query(
+            `
+                SELECT
+                    id,
+                    email,
+                    first_name,
+                    last_name,
+                    email_notifications_enabled,
+                    appointment_reminders_enabled
+                FROM users
+                WHERE id = $1
+            `,
+            [session.id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.json({
+                user: buildSessionUserResponse(session)
+            });
         }
+
+        const user = result.rows[0];
+
+        return res.json({
+            user: buildSessionUserResponse(session, {
+                appointmentRemindersEnabled: user.appointment_reminders_enabled,
+                email: user.email,
+                emailNotificationsEnabled: user.email_notifications_enabled,
+                firstName: user.first_name,
+                lastName: user.last_name,
+                name: buildDisplayName(user.first_name, user.last_name, session.email)
+            })
+        });
+    } catch (error) {
+        console.error(error);
+    }
+
+    return res.json({
+        user: buildSessionUserResponse(session)
     });
+});
+
+router.put("/me", async (req, res) => {
+    const session = getSession(req);
+
+    if (!session) {
+        return res.status(401).json({
+            message: "Non authentifie."
+        });
+    }
+
+    if (session.role === "doctor") {
+        return res.status(403).json({
+            message: "Cette route est reservee aux comptes patients."
+        });
+    }
+
+    if (!pool) {
+        return res.status(503).json({
+            message: "Configuration PostgreSQL incomplète. Renseignez backend/.env avant d'utiliser l'authentification.",
+            missing: missingDbConfig
+        });
+    }
+
+    try {
+        await ensureUsersTable();
+
+        const currentUserResult = await pool.query(
+            `
+                SELECT
+                    id,
+                    email,
+                    first_name,
+                    last_name,
+                    email_notifications_enabled,
+                    appointment_reminders_enabled
+                FROM users
+                WHERE id = $1
+            `,
+            [session.id]
+        );
+
+        if (currentUserResult.rowCount === 0) {
+            return res.status(404).json({
+                message: "Compte introuvable."
+            });
+        }
+
+        const currentUser = currentUserResult.rows[0];
+        const firstName = hasOwn(req.body, "firstName")
+            ? getStringValue(req.body.firstName)
+            : (currentUser.first_name || "");
+        const lastName = hasOwn(req.body, "lastName")
+            ? getStringValue(req.body.lastName)
+            : (currentUser.last_name || "");
+        const emailNotificationsEnabled = typeof req.body.emailNotificationsEnabled === "boolean"
+            ? req.body.emailNotificationsEnabled
+            : currentUser.email_notifications_enabled;
+        const appointmentRemindersEnabled = typeof req.body.appointmentRemindersEnabled === "boolean"
+            ? req.body.appointmentRemindersEnabled
+            : currentUser.appointment_reminders_enabled;
+
+        const updatedUserResult = await pool.query(
+            `
+                UPDATE users
+                SET
+                    first_name = $1,
+                    last_name = $2,
+                    email_notifications_enabled = $3,
+                    appointment_reminders_enabled = $4
+                WHERE id = $5
+                RETURNING
+                    id,
+                    email,
+                    first_name,
+                    last_name,
+                    email_notifications_enabled,
+                    appointment_reminders_enabled
+            `,
+            [
+                firstName || null,
+                lastName || null,
+                emailNotificationsEnabled,
+                appointmentRemindersEnabled,
+                session.id
+            ]
+        );
+
+        const updatedUser = updatedUserResult.rows[0];
+
+        return res.json({
+            message: "Profil patient mis a jour avec succes.",
+            user: buildSessionUserResponse(session, {
+                appointmentRemindersEnabled: updatedUser.appointment_reminders_enabled,
+                email: updatedUser.email,
+                emailNotificationsEnabled: updatedUser.email_notifications_enabled,
+                firstName: updatedUser.first_name,
+                lastName: updatedUser.last_name,
+                name: buildDisplayName(updatedUser.first_name, updatedUser.last_name, updatedUser.email)
+            })
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Impossible de mettre a jour le profil pour le moment."
+        });
+    }
 });
 
 router.delete("/me", async (req, res) => {
@@ -97,6 +284,8 @@ router.post("/logout", (req, res) => {
 
 router.post("/register", async (req, res) => {
     const email = getNormalizedEmail(req.body.email);
+    const firstName = getStringValue(req.body.firstName);
+    const lastName = getStringValue(req.body.lastName);
     const password = typeof req.body.password === "string" ? req.body.password : "";
 
     if (!pool) {
@@ -129,8 +318,21 @@ router.post("/register", async (req, res) => {
         const passwordHash = await bcrypt.hash(password, 10);
 
         await pool.query(
-            "INSERT INTO users (email, password_hash) VALUES ($1, $2)",
-            [email, passwordHash]
+            `
+                INSERT INTO users (
+                    email,
+                    password_hash,
+                    first_name,
+                    last_name
+                )
+                VALUES ($1, $2, $3, $4)
+            `,
+            [
+                email,
+                passwordHash,
+                firstName || null,
+                lastName || null
+            ]
         );
 
         return res.status(201).json({
@@ -166,7 +368,17 @@ router.post("/login", async (req, res) => {
         await ensureUsersTable();
 
         const result = await pool.query(
-            "SELECT id, email, password, password_hash FROM users WHERE email = $1",
+            `
+                SELECT
+                    id,
+                    email,
+                    password,
+                    password_hash,
+                    first_name,
+                    last_name
+                FROM users
+                WHERE email = $1
+            `,
             [email]
         );
 
@@ -199,7 +411,7 @@ router.post("/login", async (req, res) => {
         const sessionToken = createSession({
             id: user.id,
             email: user.email,
-            name: user.email
+            name: buildDisplayName(user.first_name, user.last_name, user.email)
         }, "patient");
 
         setSessionCookie(res, sessionToken);

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mon profil patient</title>
+        <link rel="stylesheet" href="ProfilPatient.css">
+        <script src="../shared/auth.js" defer></script>
+        <script src="ProfilPatient.js" defer></script>
+    </head>
+    <body data-require-auth="true" data-require-role="patient">
+        <header>
+            <nav>
+                <div>
+                    <button class="colorGreen"><h2>HR</h2></button>
+                    <a href="../pageAccueil/index.html"><button class="Button"><h3>Accueil</h3></button></a>
+                    <a href="../pageDocteur/Docteur.html"><button class="Button"><h3>Docteur</h3></button></a>
+                    <a href="../pageRdv/Rdv.html"><button class="Button"><h3>Rendez-vous</h3></button></a>
+                    <a href="ProfilPatient.html"><button class="Button activeButton"><h3>Mon profil</h3></button></a>
+                    <a href="../pageContact/Contact.html"><button class="Button"><h3>Contact</h3></button></a>
+                </div>
+                <div>
+                    <button class="logoutButton" data-logout-button hidden>Se deconnecter</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="profilePage">
+            <section id="patientProfileStatusCard" class="profileStatusCard">
+                Chargement de votre profil...
+            </section>
+
+            <section id="patientProfileContent" class="profileContent" hidden>
+                <section class="profileHero">
+                    <p class="eyebrow">Espace patient</p>
+                    <h1 id="patientProfileTitle">Mon profil</h1>
+                    <p id="patientProfileLead" class="profileLead"></p>
+                    <div class="heroMeta">
+                        <span id="patientEmailMeta" class="heroPill"></span>
+                    </div>
+                </section>
+
+                <section class="profileGrid">
+                    <article class="infoCard">
+                        <h2>Informations du compte</h2>
+                        <form id="patientProfileForm" class="profileForm">
+                            <div class="fieldGrid">
+                                <label class="field">
+                                    <span>Prenom</span>
+                                    <input id="patientFirstName" type="text" name="firstName" placeholder="Votre prenom">
+                                </label>
+
+                                <label class="field">
+                                    <span>Nom</span>
+                                    <input id="patientLastName" type="text" name="lastName" placeholder="Votre nom">
+                                </label>
+                            </div>
+
+                            <div class="fieldGrid">
+                                <label class="field">
+                                    <span>Email</span>
+                                    <input id="patientEmail" type="email" name="email" readonly>
+                                </label>
+                            </div>
+
+                            <section class="settingsSection">
+                                <h3>Parametres generaux</h3>
+
+                                <label class="checkboxField">
+                                    <input id="patientEmailNotifications" type="checkbox" name="emailNotificationsEnabled">
+                                    <span>Recevoir les notifications par email</span>
+                                </label>
+
+                                <label class="checkboxField">
+                                    <input id="patientAppointmentReminders" type="checkbox" name="appointmentRemindersEnabled">
+                                    <span>Recevoir les rappels de rendez-vous</span>
+                                </label>
+                            </section>
+
+                            <div class="formActions">
+                                <button id="patientProfileSaveButton" class="saveButton" type="submit">
+                                    Enregistrer les modifications
+                                </button>
+                            </div>
+
+                            <p id="patientProfileFormStatus" class="formStatus"></p>
+                        </form>
+                    </article>
+                </section>
+            </section>
+        </main>
+    </body>
+</html>

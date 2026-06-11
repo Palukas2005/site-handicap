@@ -31,6 +31,26 @@ async function ensureUsersTable() {
 
             await pool.query(`
                 ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS first_name VARCHAR(255)
+            `);
+
+            await pool.query(`
+                ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS last_name VARCHAR(255)
+            `);
+
+            await pool.query(`
+                ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS email_notifications_enabled BOOLEAN DEFAULT TRUE
+            `);
+
+            await pool.query(`
+                ALTER TABLE users
+                ADD COLUMN IF NOT EXISTS appointment_reminders_enabled BOOLEAN DEFAULT TRUE
+            `);
+
+            await pool.query(`
+                ALTER TABLE users
                 ALTER COLUMN password DROP NOT NULL
             `);
 
