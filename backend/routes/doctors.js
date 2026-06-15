@@ -2,12 +2,17 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const doctorConfig = require("../../shared/doctorConfig");
 const {
+    clearSessionCookie,
     createSession,
+    deleteSession,
     getSession,
+    getSessionToken,
     setSessionCookie
 } = require("../auth");
+const { ensureAppointmentsTable } = require("../data/appointmentsRepository");
 const {
     ensureDoctorAvailabilitySeed,
+    ensureDoctorAvailabilityTable,
     getDoctorSlotSettings,
     getDoctorWeeklyAvailability,
     updateDoctorSlotAvailability
@@ -369,6 +374,77 @@ router.put("/me", async (req, res) => {
 
         return res.status(500).json({
             message: "Impossible de mettre a jour le profil medecin pour le moment."
+        });
+    }
+});
+
+router.delete("/me", async (req, res) => {
+    const session = getDoctorSession(req);
+    const sessionToken = getSessionToken(req);
+
+    if (!session) {
+        return res.status(401).json({
+            message: "Non authentifie."
+        });
+    }
+
+    if (!pool) {
+        return res.status(503).json({
+            message: "Configuration PostgreSQL incomplète. Renseignez backend/.env avant d'utiliser l'authentification.",
+            missing: missingDbConfig
+        });
+    }
+
+    try {
+        await ensureDoctorsTable();
+        await ensureAppointmentsTable();
+        await ensureDoctorAvailabilityTable();
+
+        await pool.query("BEGIN");
+
+        await pool.query(
+            "DELETE FROM appointments WHERE doctor_key = $1",
+            [session.doctorKey || doctorConfig.doctorKey]
+        );
+
+        await pool.query(
+            "DELETE FROM doctor_availability WHERE doctor_key = $1",
+            [session.doctorKey || doctorConfig.doctorKey]
+        );
+
+        const deletedDoctor = await pool.query(
+            "DELETE FROM doctors WHERE id = $1 AND email = $2 RETURNING id",
+            [session.id, getNormalizedEmail(session.email)]
+        );
+
+        if (deletedDoctor.rowCount === 0) {
+            await pool.query("ROLLBACK");
+            return res.status(404).json({
+                message: "Compte medecin introuvable."
+            });
+        }
+
+        await pool.query("COMMIT");
+
+        if (sessionToken) {
+            deleteSession(sessionToken);
+            clearSessionCookie(res);
+        }
+
+        return res.json({
+            message: "Compte medecin supprime avec succes."
+        });
+    } catch (error) {
+        console.error(error);
+
+        try {
+            await pool.query("ROLLBACK");
+        } catch (rollbackError) {
+            console.error(rollbackError);
+        }
+
+        return res.status(500).json({
+            message: "Impossible de supprimer le compte medecin pour le moment."
         });
     }
 });

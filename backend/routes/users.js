@@ -8,6 +8,7 @@ const {
     getSessionToken,
     setSessionCookie
 } = require("../auth");
+const { ensureAppointmentsTable } = require("../data/appointmentsRepository");
 const { ensureUsersTable } = require("../data/usersRepository");
 const { pool, missingDbConfig } = require("../db");
 
@@ -242,6 +243,14 @@ router.delete("/me", async (req, res) => {
 
     try {
         await ensureUsersTable();
+        await ensureAppointmentsTable();
+
+        await pool.query("BEGIN");
+
+        await pool.query(
+            "DELETE FROM appointments WHERE user_id = $1",
+            [session.id]
+        );
 
         const deletedUser = await pool.query(
             "DELETE FROM users WHERE id = $1 AND email = $2 RETURNING id",
@@ -249,10 +258,13 @@ router.delete("/me", async (req, res) => {
         );
 
         if (deletedUser.rowCount === 0) {
+            await pool.query("ROLLBACK");
             return res.status(404).json({
                 message: "Compte introuvable."
             });
         }
+
+        await pool.query("COMMIT");
 
         if (sessionToken) {
             deleteSession(sessionToken);
@@ -264,6 +276,12 @@ router.delete("/me", async (req, res) => {
         });
     } catch (error) {
         console.error(error);
+
+        try {
+            await pool.query("ROLLBACK");
+        } catch (rollbackError) {
+            console.error(rollbackError);
+        }
 
         return res.status(500).json({
             message: "Impossible de supprimer le compte pour le moment."

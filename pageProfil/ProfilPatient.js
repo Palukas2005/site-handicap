@@ -40,6 +40,12 @@ function setPatientProfileFormStatus(message = "", type = "") {
     status.className = type ? `formStatus ${type}` : "formStatus";
 }
 
+function setPatientDeleteAccountStatus(message = "", type = "") {
+    const status = document.getElementById("patientDeleteAccountStatus");
+    status.textContent = message;
+    status.className = type ? `formStatus ${type}` : "formStatus";
+}
+
 function hydrateAccountProfile(user) {
     const email = user.email || "Information non renseignee";
     const displayName = getPatientDisplayName(user);
@@ -134,7 +140,55 @@ async function savePatientProfile(event) {
     }
 }
 
+async function deletePatientAccount() {
+    const deleteButton = document.getElementById("patientDeleteAccountButton");
+    const originalButtonText = deleteButton.textContent;
+
+    if (!window.confirm("Voulez-vous vraiment supprimer votre compte patient ?")) {
+        return;
+    }
+
+    deleteButton.disabled = true;
+    deleteButton.textContent = "Suppression...";
+    setPatientDeleteAccountStatus("Suppression du compte en cours...");
+    setPatientProfileFormStatus("");
+
+    try {
+        const response = await fetch(`${getPatientProfileApiBaseUrl()}/api/users/me`, {
+            method: "DELETE",
+            credentials: "include"
+        });
+
+        const responseText = await response.text();
+        const data = parsePatientProfileResponse(responseText);
+
+        if (!response.ok) {
+            throw new Error(data.message || "Impossible de supprimer le compte.");
+        }
+
+        setPatientDeleteAccountStatus(
+            data.message || "Compte supprime avec succes.",
+            "success"
+        );
+
+        const homeUrl = typeof getHomeUrl === "function"
+            ? getHomeUrl()
+            : "../pageAccueil/index.html";
+
+        window.location.replace(homeUrl);
+    } catch (error) {
+        console.error(error);
+        setPatientDeleteAccountStatus(
+            error.message || "Impossible de supprimer le compte.",
+            "error"
+        );
+        deleteButton.disabled = false;
+        deleteButton.textContent = originalButtonText;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("patientProfileForm").addEventListener("submit", savePatientProfile);
+    document.getElementById("patientDeleteAccountButton").addEventListener("click", deletePatientAccount);
     loadPatientProfile();
 });

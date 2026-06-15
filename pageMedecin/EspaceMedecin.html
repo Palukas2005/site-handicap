@@ -61,6 +61,22 @@
                             Chargement du planning...
                         </div>
 
+                        <div id="planningAvailabilityPanel" class="planningAvailabilityPanel">
+                            <div class="planningAvailabilityContent">
+                                <span class="doctorInfoLabel">Disponible / Indisponible</span>
+                                <p id="availabilityModeStatus" class="availabilityModeStatus">
+                                    Choisissez un etat puis cliquez sur un creneau libre.
+                                </p>
+                            </div>
+                            <label class="availabilityToggle">
+                                <input id="selectedAvailabilityToggle" type="checkbox" disabled>
+                                <span class="availabilityToggleTrack">
+                                    <span class="availabilityToggleThumb"></span>
+                                </span>
+                                <span id="selectedAvailabilityLabel" class="availabilityToggleLabel">Indisponible</span>
+                            </label>
+                        </div>
+
                         <div class="planningTableWrap">
                             <div id="planningGrid" class="planningGrid"></div>
                         </div>
@@ -87,7 +103,7 @@
                             </p>
                         </article>
 
-                        <article class="doctorCard">
+                        <article id="selectedSlotCard" class="doctorCard">
                             <h2 id="selectionCardTitle">Creneau selectionne</h2>
                             <p id="selectionCardText" class="doctorCardText">
                                 Choisissez un creneau dans le tableau pour
@@ -103,22 +119,23 @@
                                     <span class="doctorInfoLabel">Horaire</span>
                                     <span id="selectedTime" class="doctorInfoValue">Aucun horaire selectionne</span>
                                 </p>
-                                <label class="doctorField" for="selectedAvailability">
-                                    <span class="doctorInfoLabel">Disponibilite</span>
-                                    <select id="selectedAvailability" class="doctorSelect" disabled>
-                                        <option value="available">Disponible</option>
-                                        <option value="unavailable">Indisponible</option>
-                                    </select>
-                                </label>
                                 <label class="doctorField" for="selectedDuration">
                                     <span class="doctorInfoLabel">Duree du rendez-vous</span>
                                     <select id="selectedDuration" class="doctorSelect" disabled></select>
                                 </label>
-                                <button id="toggleAvailabilityButton" class="doctorActionButton" type="button" disabled>
-                                    Selectionnez un creneau
+                                <button id="saveDurationButton" class="doctorActionButton" type="button" disabled>
+                                    Enregistrer la duree
                                 </button>
                                 <p id="slotActionStatus" class="doctorActionStatus"></p>
                             </div>
+                        </article>
+
+                        <article id="bookedAppointmentCard" class="doctorCard" hidden>
+                            <h2>Rendez-vous reserve</h2>
+                            <p class="doctorCardText">
+                                Ce panneau s'affiche uniquement lorsque vous
+                                cliquez sur un creneau rouge deja reserve.
+                            </p>
 
                             <div id="bookedAppointmentPanel" hidden>
                                 <p class="doctorInfo">

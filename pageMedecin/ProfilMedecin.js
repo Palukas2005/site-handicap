@@ -40,6 +40,12 @@ function setDoctorProfileFormStatus(message = "", type = "") {
     status.className = type ? `formStatus ${type}` : "formStatus";
 }
 
+function setDoctorDeleteAccountStatus(message = "", type = "") {
+    const status = document.getElementById("doctorDeleteAccountStatus");
+    status.textContent = message;
+    status.className = type ? `formStatus ${type}` : "formStatus";
+}
+
 function hydrateDoctorProfile(doctor) {
     const email = doctor.email || "Information non renseignee";
     const displayName = getDoctorDisplayName(doctor);
@@ -142,7 +148,55 @@ async function saveDoctorProfile(event) {
     }
 }
 
+async function deleteDoctorAccount() {
+    const deleteButton = document.getElementById("doctorDeleteAccountButton");
+    const originalButtonText = deleteButton.textContent;
+
+    if (!window.confirm("Voulez-vous vraiment supprimer votre compte medecin ?")) {
+        return;
+    }
+
+    deleteButton.disabled = true;
+    deleteButton.textContent = "Suppression...";
+    setDoctorDeleteAccountStatus("Suppression du compte en cours...");
+    setDoctorProfileFormStatus("");
+
+    try {
+        const response = await fetch(`${getDoctorProfileApiBaseUrl()}/api/doctors/me`, {
+            method: "DELETE",
+            credentials: "include"
+        });
+
+        const responseText = await response.text();
+        const data = parseDoctorProfileResponse(responseText);
+
+        if (!response.ok) {
+            throw new Error(data.message || "Impossible de supprimer le compte medecin.");
+        }
+
+        setDoctorDeleteAccountStatus(
+            data.message || "Compte medecin supprime avec succes.",
+            "success"
+        );
+
+        const homeUrl = typeof getHomeUrl === "function"
+            ? getHomeUrl()
+            : "../pageAccueil/index.html";
+
+        window.location.replace(homeUrl);
+    } catch (error) {
+        console.error(error);
+        setDoctorDeleteAccountStatus(
+            error.message || "Impossible de supprimer le compte medecin.",
+            "error"
+        );
+        deleteButton.disabled = false;
+        deleteButton.textContent = originalButtonText;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("doctorProfileForm").addEventListener("submit", saveDoctorProfile);
+    document.getElementById("doctorDeleteAccountButton").addEventListener("click", deleteDoctorAccount);
     loadDoctorProfilePage();
 });

@@ -125,6 +125,15 @@ a{
     color: #1f5f4a;
     font-size: 1.4rem;
 }
+.dangerCard{
+    border-color: rgba(185, 65, 65, 0.16);
+    box-shadow: 0 20px 38px rgba(185, 65, 65, 0.08);
+}
+.dangerText{
+    margin: 0 0 18px;
+    color: #6c4a4a;
+    line-height: 1.6;
+}
 .profileForm{
     display: grid;
     gap: 20px;
@@ -193,7 +202,23 @@ a{
     color: white;
     box-shadow: 0 16px 28px rgba(36, 110, 88, 0.18);
 }
+.deleteButton{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 24px;
+    border-radius: 999px;
+    border: none;
+    background-color: #b94141;
+    color: white;
+    box-shadow: 0 16px 28px rgba(185, 65, 65, 0.18);
+}
 .saveButton:disabled{
+    opacity: 0.72;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.deleteButton:disabled{
     opacity: 0.72;
     cursor: not-allowed;
     box-shadow: none;

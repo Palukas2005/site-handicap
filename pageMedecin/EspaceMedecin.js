@@ -18,6 +18,9 @@ const doctorConfig = window.HANDIREPERE_DOCTOR_CONFIG || {
 let doctorProfile = null;
 let selectedSlotKey = "";
 let bookedAppointmentsMap = new Map();
+let availabilityToggleSyncing = false;
+let availabilityModeIsAvailable = false;
+let availabilityModeArmed = false;
 let slotDurationMap = createDurationMapFromTemplate(
     doctorConfig.weeklyAvailabilityTemplate
 );
@@ -237,19 +240,10 @@ function isPastSlot(dateKey, timeSlot) {
     if (!date) {
         return false;
     }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    const [hours, minutes] = timeSlot.split(":").map(Number);
-    const slotDate = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-        hours,
-        minutes,
-        0,
-        0
-    );
-
-    return slotDate.getTime() <= Date.now();
+    return date.getTime() < today.getTime();
 }
 
 function setSlotAvailability(dayOfWeek, timeSlot, isAvailable) {
@@ -283,6 +277,35 @@ function setBookedAppointmentStatus(message, type = "") {
     status.className = type ? `doctorActionStatus ${type}` : "doctorActionStatus";
 }
 
+function updateAvailabilityToggle(isAvailable, disabled = false) {
+    const availabilityToggle = document.getElementById("selectedAvailabilityToggle");
+    const availabilityLabel = document.getElementById("selectedAvailabilityLabel");
+    availabilityModeIsAvailable = isAvailable === true;
+
+    availabilityToggleSyncing = true;
+    availabilityToggle.checked = availabilityModeIsAvailable;
+    availabilityToggle.disabled = disabled;
+    availabilityLabel.textContent = availabilityModeIsAvailable ? "Disponible" : "Indisponible";
+    availabilityToggleSyncing = false;
+}
+
+function setAvailabilityModeStatus(message) {
+    document.getElementById("availabilityModeStatus").textContent = message;
+}
+
+function refreshAvailabilityPanelMessage() {
+    if (availabilityModeArmed) {
+        setAvailabilityModeStatus(
+            `Le prochain creneau libre passera en ${availabilityModeIsAvailable ? "disponible" : "indisponible"}.`
+        );
+        return;
+    }
+
+    setAvailabilityModeStatus(
+        "Choisissez un etat puis cliquez sur un creneau libre."
+    );
+}
+
 function hydrateDurationOptions() {
     const durationSelect = document.getElementById("selectedDuration");
     const bookedDurationSelect = document.getElementById("bookedDuration");
@@ -298,39 +321,40 @@ function hydrateDurationOptions() {
 }
 
 function showAvailableSlotPanel() {
+    document.getElementById("selectedSlotCard").hidden = false;
     document.getElementById("availableSlotPanel").hidden = false;
+    document.getElementById("bookedAppointmentCard").hidden = true;
     document.getElementById("bookedAppointmentPanel").hidden = true;
     document.getElementById("selectionCardTitle").textContent = "Creneau selectionne";
-    document.getElementById("selectionCardText").textContent = "Choisissez un creneau dans le tableau pour mettre a jour votre disponibilite.";
+    document.getElementById("selectionCardText").textContent = "Utilisez le switch pour rendre un creneau disponible ou indisponible instantanement, puis enregistrez la duree seulement si vous la modifiez.";
 }
 
 function showBookedAppointmentPanel() {
+    document.getElementById("selectedSlotCard").hidden = true;
     document.getElementById("availableSlotPanel").hidden = true;
+    document.getElementById("bookedAppointmentCard").hidden = false;
     document.getElementById("bookedAppointmentPanel").hidden = false;
-    document.getElementById("selectionCardTitle").textContent = "Rendez-vous reserve";
-    document.getElementById("selectionCardText").textContent = "Ce panneau remplace celui du creneau libre uniquement lorsque vous cliquez sur une case rouge reservee.";
 }
 
 function updateSelectedSlotCard() {
-    const availabilitySelect = document.getElementById("selectedAvailability");
     const bookedDurationSelect = document.getElementById("bookedDuration");
     const durationSelect = document.getElementById("selectedDuration");
     const saveBookedDurationButton = document.getElementById("saveBookedDurationButton");
-    const toggleButton = document.getElementById("toggleAvailabilityButton");
+    const saveDurationButton = document.getElementById("saveDurationButton");
 
     if (!selectedSlotKey) {
         showAvailableSlotPanel();
         document.getElementById("selectedDay").textContent = "Aucune selection";
         document.getElementById("selectedTime").textContent = "Aucun horaire selectionne";
-        availabilitySelect.disabled = true;
-        availabilitySelect.value = "available";
+        updateAvailabilityToggle(availabilityModeIsAvailable, false);
         durationSelect.disabled = true;
         durationSelect.value = String(doctorConfig.defaultAppointmentDurationMinutes);
         bookedDurationSelect.disabled = true;
         bookedDurationSelect.value = String(doctorConfig.defaultAppointmentDurationMinutes);
         saveBookedDurationButton.disabled = true;
-        toggleButton.disabled = true;
-        toggleButton.textContent = "Selectionnez un creneau";
+        saveDurationButton.disabled = true;
+        saveDurationButton.textContent = "Selectionnez un creneau";
+        refreshAvailabilityPanelMessage();
         setActionStatus("");
         setBookedAppointmentStatus("");
         return;
@@ -344,6 +368,7 @@ function updateSelectedSlotCard() {
 
     if (slotIsBooked) {
         showBookedAppointmentPanel();
+        refreshAvailabilityPanelMessage();
         document.getElementById("bookedPatientEmail").textContent = bookedAppointment.patientEmail || "Patient non renseigne";
         document.getElementById("bookedAppointmentDate").textContent = formatSelectedDate(dateKey);
         document.getElementById("bookedAppointmentTime").textContent = timeSlot;
@@ -357,13 +382,16 @@ function updateSelectedSlotCard() {
     showAvailableSlotPanel();
     document.getElementById("selectedDay").textContent = formatSelectedDate(dateKey);
     document.getElementById("selectedTime").textContent = timeSlot;
-    availabilitySelect.disabled = slotIsBooked;
-    availabilitySelect.value = slotIsAvailable ? "available" : "unavailable";
+    if (!availabilityModeArmed) {
+        updateAvailabilityToggle(slotIsAvailable, false);
+    }
     durationSelect.disabled = slotIsBooked;
     durationSelect.value = String(durationMinutes);
 
-    toggleButton.disabled = false;
-    toggleButton.textContent = "Enregistrer les modifications";
+    saveDurationButton.disabled = false;
+    saveDurationButton.textContent = "Enregistrer la duree";
+    refreshAvailabilityPanelMessage();
+    setActionStatus("");
     setBookedAppointmentStatus("");
 }
 
@@ -440,11 +468,27 @@ function renderPlanning() {
                 : `${timeSlot} - ${slotIsAvailable ? "Disponible" : "Indisponible"} (${durationMinutes} min)`;
 
             if (canSelect) {
-                slotButton.addEventListener("click", () => {
+                slotButton.addEventListener("click", async () => {
                     selectedSlotKey = slotKey;
                     setActionStatus("");
                     updateSelectedSlotCard();
                     renderPlanning();
+
+                    if (slotIsBooked || !availabilityModeArmed) {
+                        return;
+                    }
+
+                    if (slotIsAvailable === availabilityModeIsAvailable) {
+                        availabilityModeArmed = false;
+                        refreshAvailabilityPanelMessage();
+                        setActionStatus("Le creneau correspond deja a l'etat choisi.", "success");
+                        return;
+                    }
+
+                    await saveSelectedSlotAvailability({
+                        isAvailableOverride: availabilityModeIsAvailable,
+                        consumeArmedMode: true
+                    });
                 });
             }
 
@@ -506,7 +550,7 @@ async function loadDoctorSpace() {
         updateSelectedSlotCard();
         renderPlanning();
 
-        document.getElementById("planningStatus").textContent = "Les creneaux rouges sont reserves. Pour les autres, vous pouvez regler disponibilite et duree.";
+        document.getElementById("planningStatus").textContent = "Les creneaux rouges sont reserves. Pour les autres, le switch met a jour la disponibilite immediatement et le bouton sert uniquement a enregistrer la duree.";
         doctorStatusCard.hidden = true;
         doctorContent.hidden = false;
     } catch (error) {
@@ -515,26 +559,25 @@ async function loadDoctorSpace() {
     }
 }
 
-async function saveSelectedSlotSettings() {
+async function saveSelectedSlotAvailability(options = {}) {
     if (!selectedSlotKey) {
         return;
     }
 
     const { dateKey, timeSlot } = parseSlotKey(selectedSlotKey);
     const dayOfWeek = getDayOfWeekFromDateKey(dateKey);
-    const isAvailable = document.getElementById("selectedAvailability").value === "available";
-    const durationMinutes = normalizeDurationMinutes(
-        document.getElementById("selectedDuration").value
-    );
-    const toggleButton = document.getElementById("toggleAvailabilityButton");
+    const availabilityToggle = document.getElementById("selectedAvailabilityToggle");
+    const isAvailable = typeof options.isAvailableOverride === "boolean"
+        ? options.isAvailableOverride
+        : availabilityToggle.checked;
 
     if (dayOfWeek === null || isSlotBooked(dateKey, timeSlot)) {
         updateSelectedSlotCard();
         return;
     }
 
-    toggleButton.disabled = true;
-    setActionStatus("Mise a jour du creneau en cours...");
+    availabilityToggle.disabled = true;
+    setActionStatus("Mise a jour de la disponibilite en cours...");
 
     try {
         const response = await fetch(`${getDoctorApiBaseUrl()}/api/doctors/availability`, {
@@ -545,7 +588,6 @@ async function saveSelectedSlotSettings() {
             },
             body: JSON.stringify({
                 dayOfWeek,
-                durationMinutes,
                 isAvailable,
                 timeSlot
             })
@@ -558,16 +600,76 @@ async function saveSelectedSlotSettings() {
             throw new Error(data.message || "Impossible de mettre a jour ce creneau.");
         }
 
+        availabilityModeArmed = false;
         setSlotAvailability(dayOfWeek, timeSlot, isAvailable);
-        setSlotDuration(dayOfWeek, timeSlot, durationMinutes);
-        selectedSlotKey = "";
+        updateAvailabilityToggle(isAvailable, false);
+        refreshAvailabilityPanelMessage();
         updateSelectedSlotCard();
         renderPlanning();
-        setActionStatus("Creneau mis a jour avec succes.", "success");
+        setActionStatus("Disponibilite mise a jour avec succes.", "success");
     } catch (error) {
         console.error(error);
+        if (options.consumeArmedMode) {
+            availabilityModeArmed = false;
+        }
+        refreshAvailabilityPanelMessage();
         setActionStatus(error.message || "Impossible de mettre a jour ce creneau.", "error");
         updateSelectedSlotCard();
+    }
+}
+
+async function saveSelectedSlotDuration() {
+    if (!selectedSlotKey) {
+        return;
+    }
+
+    const { dateKey, timeSlot } = parseSlotKey(selectedSlotKey);
+    const dayOfWeek = getDayOfWeekFromDateKey(dateKey);
+    const durationMinutes = normalizeDurationMinutes(
+        document.getElementById("selectedDuration").value
+    );
+    const saveDurationButton = document.getElementById("saveDurationButton");
+
+    if (dayOfWeek === null || isSlotBooked(dateKey, timeSlot)) {
+        updateSelectedSlotCard();
+        return;
+    }
+
+    saveDurationButton.disabled = true;
+    setActionStatus("Mise a jour de la duree en cours...");
+
+    try {
+        const response = await fetch(`${getDoctorApiBaseUrl()}/api/doctors/availability`, {
+            method: "PUT",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                dayOfWeek,
+                durationMinutes,
+                isAvailable: isTemplateSlotAvailable(dateKey, timeSlot),
+                timeSlot
+            })
+        });
+
+        const responseText = await response.text();
+        const data = parseDoctorSpaceResponse(responseText);
+
+        if (!response.ok) {
+            throw new Error(data.message || "Impossible de mettre a jour la duree de ce creneau.");
+        }
+
+        setSlotDuration(dayOfWeek, timeSlot, durationMinutes);
+        updateSelectedSlotCard();
+        renderPlanning();
+        setActionStatus("Duree du creneau mise a jour avec succes.", "success");
+    } catch (error) {
+        console.error(error);
+        setActionStatus(error.message || "Impossible de mettre a jour la duree de ce creneau.", "error");
+        updateSelectedSlotCard();
+    } finally {
+        saveDurationButton.disabled = false;
     }
 }
 
@@ -636,7 +738,35 @@ async function saveBookedAppointmentDuration() {
 
 document.addEventListener("DOMContentLoaded", () => {
     hydrateDurationOptions();
-    document.getElementById("toggleAvailabilityButton").addEventListener("click", saveSelectedSlotSettings);
+    document.getElementById("selectedAvailabilityToggle").addEventListener("change", () => {
+        if (availabilityToggleSyncing) {
+            return;
+        }
+
+        const { checked } = document.getElementById("selectedAvailabilityToggle");
+        updateAvailabilityToggle(checked, false);
+        const selectedSlot = selectedSlotKey ? parseSlotKey(selectedSlotKey) : null;
+        const selectedSlotIsBooked = selectedSlot
+            ? isSlotBooked(selectedSlot.dateKey, selectedSlot.timeSlot)
+            : false;
+
+        if (!selectedSlotKey || selectedSlotIsBooked) {
+            availabilityModeArmed = true;
+            refreshAvailabilityPanelMessage();
+            setActionStatus("");
+            setBookedAppointmentStatus("");
+            return;
+        }
+
+        availabilityModeArmed = false;
+        refreshAvailabilityPanelMessage();
+        saveSelectedSlotAvailability({
+            isAvailableOverride: checked
+        });
+    });
+    document.getElementById("saveDurationButton").addEventListener("click", saveSelectedSlotDuration);
     document.getElementById("saveBookedDurationButton").addEventListener("click", saveBookedAppointmentDuration);
+    updateAvailabilityToggle(availabilityModeIsAvailable, false);
+    refreshAvailabilityPanelMessage();
     loadDoctorSpace();
 });

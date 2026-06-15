@@ -153,6 +153,27 @@ a{
     color: #54796c;
     min-height: 24px;
 }
+.planningAvailabilityPanel{
+    margin-top: 22px;
+    padding: 18px 24px;
+    border-radius: 24px;
+    background-color: #f7fcf9;
+    border: 1px solid rgba(36, 110, 88, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+.planningAvailabilityContent{
+    display: grid;
+    gap: 6px;
+}
+.availabilityModeStatus{
+    margin: 0;
+    color: #54796c;
+    line-height: 1.5;
+}
 .planningTableWrap{
     margin-top: 22px;
     overflow-x: auto;
@@ -266,6 +287,53 @@ a{
     gap: 8px;
     margin-top: 18px;
 }
+.availabilityToggle{
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    width: fit-content;
+    cursor: pointer;
+}
+.availabilityToggle input{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.availabilityToggleTrack{
+    position: relative;
+    width: 64px;
+    height: 34px;
+    border-radius: 999px;
+    background-color: #d9e5e0;
+    transition: background-color 0.2s ease;
+}
+.availabilityToggleThumb{
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(23, 63, 50, 0.12);
+    transition: transform 0.2s ease;
+}
+.availabilityToggle input:checked + .availabilityToggleTrack{
+    background-color: #246e58;
+}
+.availabilityToggle input:checked + .availabilityToggleTrack .availabilityToggleThumb{
+    transform: translateX(30px);
+}
+.availabilityToggle input:disabled + .availabilityToggleTrack{
+    background-color: #dfe8e4;
+}
+.availabilityToggleLabel{
+    color: #173f32;
+    line-height: 1.5;
+}
+.availabilityToggle input:disabled ~ .availabilityToggleLabel{
+    color: #7b8b86;
+}
 .doctorSelect{
     padding: 14px 16px;
     border-radius: 18px;
@@ -338,6 +406,10 @@ a{
     .planningCard,
     .doctorCard{
         padding: 24px;
+    }
+
+    .planningAvailabilityPanel{
+        padding: 20px;
     }
 
     .doctorSelect{
